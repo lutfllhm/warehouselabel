@@ -6,7 +6,14 @@ const pool = require("./db");
 require("dotenv").config();
 
 const app = express();
-app.use(cors());
+
+// CORS configuration
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN || '*',
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 const SECRET = process.env.JWT_SECRET || "warehouse-secret";
