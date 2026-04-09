@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Theme Test</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    }
+  </script>
+</head>
+<body class="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+  <div class="p-8">
+    <h1 class="text-3xl font-bold mb-4">Theme Toggle Test</h1>
+    
+    <div class="mb-4">
+      <p>Current theme: <span id="current-theme" class="font-bold">light</span></p>
+      <p>HTML classes: <span id="html-classes" class="font-mono text-sm">-</span></p>
+    </div>
+    
+    <button 
+      id="toggle-btn"
+      class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500"
+    >
+      Toggle Theme
+    </button>
+    
+    <div class="mt-8 grid gap-4">
+      <div class="p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
+        <p class="font-semibold">Test Box 1</p>
+        <p class="text-sm text-slate-600 dark:text-slate-400">This should change color</p>
+      </div>
+      
+      <div class="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
+        <p class="font-semibold">Test Box 2</p>
+        <p class="text-sm text-slate-600 dark:text-slate-400">This should also change</p>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    const html = document.documentElement;
+    const btn = document.getElementById('toggle-btn');
+    const currentThemeSpan = document.getElementById('current-theme');
+    const htmlClassesSpan = document.getElementById('html-classes');
+    
+    function updateDisplay() {
+      const theme = html.classList.contains('dark') ? 'dark' : 'light';
+      currentThemeSpan.textContent = theme;
+      htmlClassesSpan.textContent = html.className || '(none)';
+      console.log('Theme updated:', theme, 'Classes:', html.className);
+    }
+    
+    btn.addEventListener('click', () => {
+      console.log('Before toggle:', html.className);
+      
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        html.classList.add('light');
+        localStorage.setItem('theme', 'light');
+      } else {
+        html.classList.remove('light');
+        html.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      }
+      
+      console.log('After toggle:', html.className);
+      updateDisplay();
+    });
+    
+    updateDisplay();
+  </script>
+</body>
+</html>

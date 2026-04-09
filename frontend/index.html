@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/img/rbm.png" />
+    <link rel="apple-touch-icon" href="/img/rbm.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="RBM Warehouse Label - Sistem manajemen gudang label yang rapi, cepat, dan terukur" />
+    <meta name="theme-color" content="#4f46e5" />
+    <title>RBM Warehouse Label - Sistem Manajemen Gudang</title>
+    <script>
+      // Prevent flash of wrong theme - MUST run before any content loads
+      (function() {
+        try {
+          const theme = localStorage.getItem('theme') || 
+            (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          
+          const root = document.documentElement;
+          const isDark = theme === 'dark';
+          
+          // Remove all theme classes
+          root.classList.remove('dark', 'light');
+          
+          // Add correct class
+          root.classList.add(theme);
+          
+          // Force inline styles
+          root.style.colorScheme = isDark ? 'dark' : 'light';
+          
+          if (isDark) {
+            root.style.background = '#0f172a';
+          } else {
+            root.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+          }
+          
+          console.log('[Init] Theme set to:', theme);
+        } catch (e) {
+          console.error('[Init] Theme error:', e);
+          // Fallback to light
+          document.documentElement.classList.add('light');
+          document.documentElement.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
