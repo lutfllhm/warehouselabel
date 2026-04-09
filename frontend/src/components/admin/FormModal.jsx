@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { itemOptions } from "../../constants/app.js";
 import { parsePnNumber, parseUkuranMm } from "../../utils/documents.js";
+import StructuredItemInput from "./StructuredItemInput.jsx";
 
 export default function FormModal({ mode, initial, fields, categories, onClose, onSubmit, safeDateKey }) {
   const seed = useMemo(() => {
@@ -104,6 +105,7 @@ export default function FormModal({ mode, initial, fields, categories, onClose, 
   const [form, setForm] = useState(seed);
   const [errors, setErrors] = useState({});
   const [isSaving, setIsSaving] = useState(false);
+  const [useStructuredInput, setUseStructuredInput] = useState(false);
 
   const numericFields = useMemo(
     () => new Set(["ukuran_panjang", "ukuran_lebar", "jumlah_roll", "stock_awal", "stock_total", "ukuran_value", "detail_qty"]),
@@ -223,18 +225,56 @@ export default function FormModal({ mode, initial, fields, categories, onClose, 
                 </select>
               ) : field === "nama_item" && (mode === "stock-label" || mode === "transaksi-masuk" || mode === "transaksi-keluar") ? (
                 <>
-                  <input
-                    list="nama-item-saran"
-                    value={form[field] ?? ""}
-                    onChange={(e) => setForm((s) => ({ ...s, [field]: e.target.value }))}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-950/40 dark:text-slate-100"
-                    placeholder="Ketik atau pilih dari saran"
-                  />
-                  <datalist id="nama-item-saran">
-                    {itemOptions.map((o) => (
-                      <option key={o} value={o} />
-                    ))}
-                  </datalist>
+                  <div className="mb-2 flex items-center gap-2">
+                    <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                      <input
+                        type="checkbox"
+                        checked={useStructuredInput}
+                        onChange={(e) => setUseStructuredInput(e.target.checked)}
+                        className="rounded"
+                      />
+                      Gunakan input terstruktur
+                    </label>
+                  </div>
+                  
+                  {useStructuredInput ? (
+                    <StructuredItemInput
+                      value={form[field] ?? ""}
+                      onChange={(val) => setForm((s) => ({ ...s, [field]: val }))}
+                      onUkuranChange={
+                        mode === "transaksi-masuk" || mode === "transaksi-keluar"
+                          ? (panjang, lebar) => {
+                              setForm((s) => ({
+                                ...s,
+                                ukuran_panjang: panjang,
+                                ukuran_lebar: lebar,
+                              }));
+                            }
+                          : mode === "stock-label"
+                            ? (panjang, lebar) => {
+                                // Untuk stock label, gabungkan ukuran
+                                const ukuranValue = panjang && lebar ? `${panjang}x${lebar}` : "";
+                                setForm((s) => ({ ...s, ukuran_value: ukuranValue }));
+                              }
+                            : undefined
+                      }
+                    />
+                  ) : (
+                    <>
+                      <input
+                        list="nama-item-saran"
+                        value={form[field] ?? ""}
+                        onChange={(e) => setForm((s) => ({ ...s, [field]: e.target.value }))}
+                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-950/40 dark:text-slate-100"
+                        placeholder="Ketik atau pilih dari saran"
+                      />
+                      <datalist id="nama-item-saran">
+                        {itemOptions.map((o) => (
+                          <option key={o} value={o} />
+                        ))}
+                      </datalist>
+                    </>
+                  )}
                 </>
               ) : field === "role" ? (
                 <select
