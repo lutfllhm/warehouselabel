@@ -2,11 +2,10 @@
 require("dotenv").config();
 
 const pool = mysql.createPool({
-  host: process.env.MYSQLHOST || "localhost",
-  port: process.env.MYSQLPORT || 3306,
-  user: process.env.MYSQLUSER || "root",
-  password: process.env.MYSQLPASSWORD || "",
-  database: process.env.MYSQLDATABASE || "warehouse_label",
+  host: process.env.DB_HOST || "localhost",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "",
+  database: process.env.DB_NAME || "warehouse_label",
   waitForConnections: true,
   connectionLimit: 10,
 });
