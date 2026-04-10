@@ -11,6 +11,7 @@ import AdminHeader from "../components/admin/AdminHeader.jsx";
 import AdminFooter from "../components/admin/AdminFooter.jsx";
 import FormModal from "../components/admin/FormModal.jsx";
 import DetailModal from "../components/admin/DetailModal.jsx";
+import ConfirmDialog from "../components/admin/ConfirmDialog.jsx";
 
 function safeDateKey(value) {
   if (!value) return null;
@@ -56,6 +57,7 @@ export default function AdminLayout() {
   const [formState, setFormState] = useState({ open: false, mode: "", record: null });
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => localStorage.getItem("sidebar_collapsed") === "1");
+  const [confirmDelete, setConfirmDelete] = useState(null);
 
   const user = useMemo(() => {
     try {
@@ -111,12 +113,10 @@ export default function AdminLayout() {
 
     const now = new Date();
     setLastUpdatedLabel(
-      now.toLocaleString(undefined, {
+      now.toLocaleDateString("id-ID", {
         year: "numeric",
         month: "short",
         day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
       }),
     );
     setIsLoading(false);
@@ -139,17 +139,23 @@ export default function AdminLayout() {
 
   const doDelete = useCallback(
     async (endpoint, delId) => {
-      if (!window.confirm("Hapus data ini?")) return;
-      try {
-        await api.delete(`${endpoint}/${delId}`);
-        await loadAll();
-        push({ type: "success", title: "Berhasil", message: "Data berhasil dihapus." });
-      } catch {
-        push({ type: "error", title: "Gagal", message: "Tidak dapat menghapus data." });
-      }
+      setConfirmDelete({ endpoint, delId });
     },
-    [loadAll, push],
+    [],
   );
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!confirmDelete) return;
+    try {
+      await api.delete(`${confirmDelete.endpoint}/${confirmDelete.delId}`);
+      await loadAll();
+      push({ type: "success", title: "Berhasil", message: "Data berhasil dihapus." });
+    } catch {
+      push({ type: "error", title: "Gagal", message: "Tidak dapat menghapus data." });
+    } finally {
+      setConfirmDelete(null);
+    }
+  }, [confirmDelete, loadAll, push]);
 
   const submitForm = async (payload) => {
     try {
@@ -220,7 +226,7 @@ export default function AdminLayout() {
 
   const dynamicFormFields = {
     "stock-material": ["tanggal", "no_po", "nama_material", "ukuran_panjang", "ukuran_lebar", "jumlah_roll", "kategori_id"],
-    "stock-label": ["tanggal", "pn_number", "nama_item", "ukuran_value", "stock_awal", "stock_total", "finishing", "isi"],
+    "stock-label": ["tanggal", "pn_number", "nama_item", "stock_awal", "stock_total", "isi"],
     kategori: ["nama_kategori", "supplier"],
     "transaksi-masuk": ["tanggal", "no_lps", "pn_number", "nama_item", "ukuran_panjang", "ukuran_lebar", "jumlah_roll"],
     "transaksi-keluar": ["tanggal", "no_sj", "pn_number", "nama_item", "ukuran_panjang", "ukuran_lebar", "jumlah_roll"],
@@ -235,7 +241,8 @@ export default function AdminLayout() {
     () =>
       dataMap.material.map((r) => ({
         ...r,
-        ukuran_tampil: `${Number(r.ukuran_panjang ?? 0)}M × ${Number(r.ukuran_lebar ?? 0)}M`,
+        ukuran_tampil: `${Number(r.ukuran_panjang ?? 0)}M × ${Number(r.ukuran_lebar ?? 0)}mm`,
+        jumlah_disp: `${r.jumlah_roll} Roll`,
       })),
     [dataMap.material],
   );
@@ -385,6 +392,15 @@ export default function AdminLayout() {
           onClose={() => setFormState({ open: false, mode: "", record: null })}
           onSubmit={submitForm}
           safeDateKey={safeDateKey}
+        />
+      )}
+
+      {confirmDelete && (
+        <ConfirmDialog
+          title="Hapus Data"
+          message="Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan."
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setConfirmDelete(null)}
         />
       )}
     </div>

@@ -27,6 +27,8 @@ import StatCard from "../components/ui/StatCard.jsx";
 import ThemeToggle from "../components/theme/ThemeToggle.jsx";
 import { useNotifications } from "../providers/useNotifications.js";
 import { useTheme } from "../providers/useTheme.js";
+import DetailModal from "../components/admin/DetailModal.jsx";
+import ConfirmDialog from "../components/admin/ConfirmDialog.jsx";
 
 function safeDateKey(value) {
   if (!value) return null;
@@ -493,7 +495,6 @@ function FormModal({ mode, initial, fields, categories, onClose, onSubmit }) {
         "jumlah_roll",
         "stock_awal",
         "stock_total",
-        "ukuran_value",
         "detail_qty",
       ]),
     [],
@@ -511,15 +512,24 @@ function FormModal({ mode, initial, fields, categories, onClose, onSubmit }) {
       if (!Number.isFinite(n) || n <= 0) next[field] = `${label} harus lebih dari 0.`;
     };
 
+    const requireNonNegative = (field, label) => {
+      const raw = form[field];
+      if (raw === "" || raw === null || raw === undefined) {
+        next[field] = `${label} wajib diisi.`;
+        return;
+      }
+      const n = Number(raw);
+      if (!Number.isFinite(n) || n < 0) next[field] = `${label} tidak boleh negatif.`;
+    };
+
     if (mode === "material") {
       requirePositive("ukuran_panjang", "Ukuran panjang");
       requirePositive("ukuran_lebar", "Ukuran lebar");
       requirePositive("jumlah_roll", "Jumlah roll");
     }
     if (mode === "label") {
-      requirePositive("stock_awal", "Stock awal");
-      requirePositive("stock_total", "Stock total");
-      requirePositive("ukuran_value", "Ukuran");
+      requireNonNegative("stock_awal", "Stock awal");
+      requireNonNegative("stock_total", "Stock total");
     }
     if (mode === "transaksiIn" || mode === "transaksiOut") {
       requirePositive("ukuran_panjang", "Ukuran panjang");
@@ -545,7 +555,6 @@ function FormModal({ mode, initial, fields, categories, onClose, onSubmit }) {
     if (mode === "label") {
       normalized.stock_awal = Number(form.stock_awal || 0);
       normalized.stock_total = Number(form.stock_total || 0);
-      normalized.ukuran_value = Number(form.ukuran_value || 0);
     }
     if (mode === "transaksiIn" || mode === "transaksiOut") {
       normalized.jumlah_roll = Number(form.jumlah_roll || 0);
@@ -667,7 +676,10 @@ function FormModal({ mode, initial, fields, categories, onClose, onSubmit }) {
               )}
               {!!errors[field] && <p className="mt-1 text-xs text-rose-600 dark:text-rose-300">{errors[field]}</p>}
               {field === "ukuran_panjang" && mode === "material" && (
-                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Contoh 1000M x 100M: isi panjang 1000 dan lebar 100 (M tampil sebagai label).</p>
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Contoh 1000M x 225mm: isi panjang 1000 (M) dan lebar 225 (mm).</p>
+              )}
+              {field === "ukuran_lebar" && mode === "material" && (
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Lebar dalam mm, panjang dalam M.</p>
               )}
             </label>
           ))}
@@ -739,26 +751,32 @@ export default function DashboardApp() {
   const [formState, setFormState] = useState({ open: false, mode: "", record: null });
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState(() => ({ stock: true, transaksi: false, documen: false }));
+  const [confirmDelete, setConfirmDelete] = useState(null);
 
   const toggleMenuGroup = useCallback((groupKey) => {
     setExpandedMenus((s) => {
       const nextOpen = !s[groupKey];
+      // Tutup semua grup lain, hanya buka yang diklik
       return {
-        stock: false,
-        transaksi: false,
-        documen: false,
-        [groupKey]: nextOpen,
+        stock: groupKey === "stock" ? nextOpen : false,
+        transaksi: groupKey === "transaksi" ? nextOpen : false,
+        documen: groupKey === "documen" ? nextOpen : false,
       };
     });
   }, []);
 
   useEffect(() => {
+    // Auto expand grup yang sesuai dengan menu yang dipilih
+    // Dan tutup grup lainnya
     if (selected.startsWith("stock-")) {
       setExpandedMenus({ stock: true, transaksi: false, documen: false });
     } else if (selected.startsWith("transaksi-")) {
       setExpandedMenus({ stock: false, transaksi: true, documen: false });
     } else if (selected.startsWith("documen-")) {
       setExpandedMenus({ stock: false, transaksi: false, documen: true });
+    } else {
+      // Jika menu lain dipilih (dashboard, kategori, users, dll), tutup semua grup
+      setExpandedMenus({ stock: false, transaksi: false, documen: false });
     }
   }, [selected]);
 
@@ -814,12 +832,10 @@ export default function DashboardApp() {
     });
     const now = new Date();
     setLastUpdatedLabel(
-      now.toLocaleString(undefined, {
+      now.toLocaleDateString("id-ID", {
         year: "numeric",
         month: "short",
         day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
       }),
     );
     setIsLoading(false);
@@ -842,17 +858,23 @@ export default function DashboardApp() {
 
   const doDelete = useCallback(
     async (endpoint, delId) => {
-      if (!window.confirm("Hapus data ini?")) return;
-      try {
-        await api.delete(`${endpoint}/${delId}`);
-        await loadAll();
-        push({ type: "success", title: "Berhasil", message: "Data berhasil dihapus." });
-      } catch {
-        push({ type: "error", title: "Gagal", message: "Tidak dapat menghapus data." });
-      }
+      setConfirmDelete({ endpoint, delId });
     },
-    [loadAll, push],
+    [],
   );
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!confirmDelete) return;
+    try {
+      await api.delete(`${confirmDelete.endpoint}/${confirmDelete.delId}`);
+      await loadAll();
+      push({ type: "success", title: "Berhasil", message: "Data berhasil dihapus." });
+    } catch {
+      push({ type: "error", title: "Gagal", message: "Tidak dapat menghapus data." });
+    } finally {
+      setConfirmDelete(null);
+    }
+  }, [confirmDelete, loadAll, push]);
 
   const submitForm = async (payload) => {
     try {
@@ -923,7 +945,7 @@ export default function DashboardApp() {
 
   const dynamicFormFields = {
     material: ["tanggal", "no_po", "nama_material", "ukuran_panjang", "ukuran_lebar", "jumlah_roll", "kategori_id"],
-    label: ["tanggal", "pn_number", "nama_item", "ukuran_value", "stock_awal", "stock_total", "finishing", "isi"],
+    label: ["tanggal", "pn_number", "nama_item", "stock_awal", "stock_total", "isi"],
     kategori: ["nama_kategori", "supplier"],
     transaksiIn: ["tanggal", "no_lps", "pn_number", "nama_item", "ukuran_panjang", "ukuran_lebar", "jumlah_roll"],
     transaksiOut: ["tanggal", "no_sj", "pn_number", "nama_item", "ukuran_panjang", "ukuran_lebar", "jumlah_roll"],
@@ -938,7 +960,8 @@ export default function DashboardApp() {
     () =>
       dataMap.material.map((r) => ({
         ...r,
-        ukuran_tampil: `${Number(r.ukuran_panjang ?? 0)}M × ${Number(r.ukuran_lebar ?? 0)}M`,
+        ukuran_tampil: `${Number(r.ukuran_panjang ?? 0)}M × ${Number(r.ukuran_lebar ?? 0)}mm`,
+        jumlah_disp: `${r.jumlah_roll} Roll`,
       })),
     [dataMap.material],
   );
@@ -984,9 +1007,9 @@ export default function DashboardApp() {
       return (
         <TableSection
           title="Stock Material"
-          columns={["No", "Tanggal", "No PO", "Nama Material", "Ukuran", "Aksi"]}
+          columns={["No", "Tanggal", "No PO", "Nama Material", "Ukuran", "Jumlah", "Aksi"]}
           rows={materialRows}
-          keys={["tanggal", "no_po", "nama_material", "ukuran_tampil"]}
+          keys={["tanggal", "no_po", "nama_material", "ukuran_tampil", "jumlah_disp"]}
           searchKeys={["tanggal", "no_po", "nama_material", "ukuran_tampil"]}
           searchPlaceholder="Cari tanggal / PO / material…"
           onDelete={(delId) => doDelete("/material-stocks", delId)}
@@ -1434,23 +1457,9 @@ export default function DashboardApp() {
           </div>
         </footer>
         </div>
-        {detailRow && (
-          <div className="fixed inset-0 z-30 flex items-center justify-center bg-slate-900/40 p-4 dark:bg-black/60">
-            <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800/70">
-              <h4 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-100">Detail</h4>
-              <pre className="max-h-72 overflow-auto rounded-lg bg-white p-3 text-xs text-slate-700 ring-1 ring-slate-200/70 dark:bg-slate-950/40 dark:text-slate-200 dark:ring-slate-800/70">{JSON.stringify(detailRow, null, 2)}</pre>
-              <div className="mt-4 text-right">
-                <button
-                  type="button"
-                  className="rounded-lg bg-slate-700 px-4 py-2 text-white hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700"
-                  onClick={() => setDetailRow(null)}
-                >
-                  Tutup
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        
+        {detailRow && <DetailModal row={detailRow} onClose={() => setDetailRow(null)} />}
+        
         {formState.open && (
           <FormModal
             key={`${formState.mode}-${formState.record?.id ?? "new"}`}
@@ -1460,6 +1469,15 @@ export default function DashboardApp() {
             categories={dataMap.kategori}
             onClose={() => setFormState({ open: false, mode: "", record: null })}
             onSubmit={submitForm}
+          />
+        )}
+
+        {confirmDelete && (
+          <ConfirmDialog
+            title="Hapus Data"
+            message="Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan."
+            onConfirm={handleConfirmDelete}
+            onCancel={() => setConfirmDelete(null)}
           />
         )}
       </main>

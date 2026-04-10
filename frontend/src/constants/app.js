@@ -1,30 +1,30 @@
-import { BarChart3, Database, LayoutDashboard, Package, Settings, ShieldCheck, Users } from "lucide-react";
+import { ArrowDownToLine, ArrowUpFromLine, BarChart3, Database, FileText, LayoutDashboard, Package, PackageOpen, Receipt, Repeat2, Settings, Users, Warehouse } from "lucide-react";
 
 export const menus = [
   { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   {
     label: "Stock",
-    icon: Package,
+    icon: Warehouse,
     children: [
-      { key: "stock-material", label: "Stock Material", icon: Package },
+      { key: "stock-material", label: "Stock Material", icon: PackageOpen },
       { key: "stock-label", label: "Stock Label", icon: BarChart3 },
     ],
   },
   { key: "kategori", label: "Kategori Material", icon: Database },
   {
     label: "Transaksi",
-    icon: Package,
+    icon: Repeat2,
     children: [
-      { key: "transaksi-masuk", label: "Label Masuk", icon: Package },
-      { key: "transaksi-keluar", label: "Label Keluar", icon: Package },
+      { key: "transaksi-masuk", label: "Label Masuk", icon: ArrowDownToLine },
+      { key: "transaksi-keluar", label: "Label Keluar", icon: ArrowUpFromLine },
     ],
   },
   {
     label: "Documen",
-    icon: ShieldCheck,
+    icon: FileText,
     children: [
-      { key: "documen-lps", label: "Documen LPS", icon: ShieldCheck },
-      { key: "documen-sj", label: "Documen SJ", icon: ShieldCheck },
+      { key: "documen-lps", label: "Documen LPS", icon: Receipt },
+      { key: "documen-sj", label: "Documen SJ", icon: FileText },
     ],
   },
   { key: "users", label: "Manajemen User", icon: Users },

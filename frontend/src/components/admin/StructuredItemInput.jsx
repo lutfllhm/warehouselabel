@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
  * Format: Lb. [ukuran_panjang]mm x [ukuran_lebar]mm [tipe] [deskripsi_manual]
  * Contoh: Lb. 33mm x 15mm GPIL FO THERMAL LABEL
  */
-export default function StructuredItemInput({ value, onChange, onUkuranChange }) {
+export default function StructuredItemInput({ value, onChange, onUkuranChange, onFinishingChange, finishing }) {
   // Parse nilai awal jika ada
   const parseInitialValue = (val) => {
     if (!val) return { prefix: "Lb.", panjang: "", lebar: "", tipe: "", deskripsi: "" };
@@ -50,6 +50,7 @@ export default function StructuredItemInput({ value, onChange, onUkuranChange })
   };
 
   const [parts, setParts] = useState(() => parseInitialValue(value));
+  const [localFinishing, setLocalFinishing] = useState(finishing || "FI");
 
   // Update nilai lengkap ketika ada perubahan
   useEffect(() => {
@@ -65,16 +66,24 @@ export default function StructuredItemInput({ value, onChange, onUkuranChange })
       }
     }
     if (tipe) components.push(tipe);
+    if (localFinishing) components.push(localFinishing);
     if (deskripsi) components.push(deskripsi);
     
     const fullValue = components.join(" ");
     if (onChange) {
       onChange(fullValue);
     }
-  }, [parts, onChange, onUkuranChange]);
+  }, [parts, localFinishing, onChange, onUkuranChange]);
 
   const updatePart = (key, val) => {
     setParts(prev => ({ ...prev, [key]: val }));
+  };
+
+  const handleFinishingChange = (val) => {
+    setLocalFinishing(val);
+    if (onFinishingChange) {
+      onFinishingChange(val);
+    }
   };
 
   return (
@@ -95,28 +104,46 @@ export default function StructuredItemInput({ value, onChange, onUkuranChange })
           </select>
         </div>
 
-        {/* Tipe */}
+        {/* Finishing */}
         <div>
           <label className="mb-1 block text-xs text-slate-600 dark:text-slate-400">
-            Tipe
+            Finishing
           </label>
           <select
-            value={parts.tipe}
-            onChange={(e) => updatePart("tipe", e.target.value)}
+            value={localFinishing}
+            onChange={(e) => handleFinishingChange(e.target.value)}
             className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950/40 dark:text-slate-100"
           >
-            <option value="">Pilih tipe</option>
-            <option value="GPIL">GPIL</option>
-            <option value="GP4L">GP4L</option>
-            <option value="G1L">G1L</option>
-            <option value="G2L">G2L</option>
-            <option value="G3L">G3L</option>
-            <option value="G4L">G4L</option>
+            <option value="FI">FI</option>
+            <option value="FO">FO</option>
             <option value="CORELESS">CORELESS</option>
-            <option value="EYEMARK">EYEMARK</option>
-            <option value="HALFCUT">HALFCUT</option>
+            <option value="FANFOLD">FANFOLD</option>
+            <option value="SHEET">SHEET</option>
           </select>
         </div>
+      </div>
+
+      {/* Tipe */}
+      <div>
+        <label className="mb-1 block text-xs text-slate-600 dark:text-slate-400">
+          Tipe
+        </label>
+        <select
+          value={parts.tipe}
+          onChange={(e) => updatePart("tipe", e.target.value)}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950/40 dark:text-slate-100"
+        >
+          <option value="">Pilih tipe</option>
+          <option value="GPIL">GPIL</option>
+          <option value="GP4L">GP4L</option>
+          <option value="G1L">G1L</option>
+          <option value="G2L">G2L</option>
+          <option value="G3L">G3L</option>
+          <option value="G4L">G4L</option>
+          <option value="CORELESS">CORELESS</option>
+          <option value="EYEMARK">EYEMARK</option>
+          <option value="HALFCUT">HALFCUT</option>
+        </select>
       </div>
 
       {/* Ukuran */}
@@ -168,8 +195,9 @@ export default function StructuredItemInput({ value, onChange, onUkuranChange })
           {parts.prefix && <span>{parts.prefix} </span>}
           {parts.panjang && parts.lebar && <span>{parts.panjang}mm x {parts.lebar}mm </span>}
           {parts.tipe && <span>{parts.tipe} </span>}
+          {localFinishing && <span>{localFinishing} </span>}
           {parts.deskripsi && <span>{parts.deskripsi}</span>}
-          {!parts.prefix && !parts.panjang && !parts.lebar && !parts.tipe && !parts.deskripsi && (
+          {!parts.prefix && !parts.panjang && !parts.lebar && !parts.tipe && !localFinishing && !parts.deskripsi && (
             <span className="text-slate-400 dark:text-slate-500 italic">Belum ada input</span>
           )}
         </p>

@@ -6,9 +6,9 @@ export default function StockMaterialPage() {
   return (
     <TableSection
       title="Stock Material"
-      columns={["No", "Tanggal", "No PO", "Nama Material", "Ukuran", "Aksi"]}
+      columns={["No", "Tanggal", "No PO", "Nama Material", "Ukuran", "Jumlah", "Aksi"]}
       rows={materialRows}
-      keys={["tanggal", "no_po", "nama_material", "ukuran_tampil"]}
+      keys={["tanggal", "no_po", "nama_material", "ukuran_tampil", "jumlah_disp"]}
       searchKeys={["tanggal", "no_po", "nama_material", "ukuran_tampil"]}
       searchPlaceholder="Cari tanggal / PO / material…"
       onDelete={(delId) => doDelete("/material-stocks", delId)}

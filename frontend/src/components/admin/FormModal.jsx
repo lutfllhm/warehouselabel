@@ -108,7 +108,7 @@ export default function FormModal({ mode, initial, fields, categories, onClose, 
   const [useStructuredInput, setUseStructuredInput] = useState(false);
 
   const numericFields = useMemo(
-    () => new Set(["ukuran_panjang", "ukuran_lebar", "jumlah_roll", "stock_awal", "stock_total", "ukuran_value", "detail_qty"]),
+    () => new Set(["ukuran_panjang", "ukuran_lebar", "jumlah_roll", "stock_awal", "stock_total", "detail_qty"]),
     [],
   );
 
@@ -124,15 +124,24 @@ export default function FormModal({ mode, initial, fields, categories, onClose, 
       if (!Number.isFinite(n) || n <= 0) next[field] = `${label} harus lebih dari 0.`;
     };
 
+    const requireNonNegative = (field, label) => {
+      const raw = form[field];
+      if (raw === "" || raw === null || raw === undefined) {
+        next[field] = `${label} wajib diisi.`;
+        return;
+      }
+      const n = Number(raw);
+      if (!Number.isFinite(n) || n < 0) next[field] = `${label} tidak boleh negatif.`;
+    };
+
     if (mode === "stock-material") {
       requirePositive("ukuran_panjang", "Ukuran panjang");
       requirePositive("ukuran_lebar", "Ukuran lebar");
       requirePositive("jumlah_roll", "Jumlah roll");
     }
     if (mode === "stock-label") {
-      requirePositive("stock_awal", "Stock awal");
-      requirePositive("stock_total", "Stock total");
-      requirePositive("ukuran_value", "Ukuran");
+      requireNonNegative("stock_awal", "Stock awal");
+      requireNonNegative("stock_total", "Stock total");
     }
     if (mode === "transaksi-masuk" || mode === "transaksi-keluar") {
       requirePositive("ukuran_panjang", "Ukuran panjang");
@@ -186,6 +195,25 @@ export default function FormModal({ mode, initial, fields, categories, onClose, 
         <h4 className="mb-4 text-lg font-semibold text-slate-800 dark:text-slate-100">
           {String(mode).replace(/([A-Z])/g, " $1")}
         </h4>
+        
+        {/* Checkbox untuk structured input - di luar grid */}
+        {(mode === "stock-label" || mode === "transaksi-masuk" || mode === "transaksi-keluar") && (
+          <div className="mb-4 rounded-lg border border-indigo-200 bg-indigo-50 p-3 dark:border-indigo-800 dark:bg-indigo-900/20">
+            <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+              <input
+                type="checkbox"
+                checked={useStructuredInput}
+                onChange={(e) => setUseStructuredInput(e.target.checked)}
+                className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-2 focus:ring-indigo-500 dark:border-slate-600"
+              />
+              <span className="font-medium">Gunakan input terstruktur untuk nama item</span>
+            </label>
+            <p className="ml-6 mt-1 text-xs text-slate-500 dark:text-slate-400">
+              Format otomatis: Lb. [ukuran] [tipe] [finishing] [deskripsi]
+            </p>
+          </div>
+        )}
+        
         <div className="grid gap-3 md:grid-cols-2">
           {fields.map((field) => (
             <label key={field} className={`text-sm ${field === "detail_notes" ? "md:col-span-2" : ""}`}>
@@ -225,22 +253,16 @@ export default function FormModal({ mode, initial, fields, categories, onClose, 
                 </select>
               ) : field === "nama_item" && (mode === "stock-label" || mode === "transaksi-masuk" || mode === "transaksi-keluar") ? (
                 <>
-                  <div className="mb-2 flex items-center gap-2">
-                    <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
-                      <input
-                        type="checkbox"
-                        checked={useStructuredInput}
-                        onChange={(e) => setUseStructuredInput(e.target.checked)}
-                        className="rounded"
-                      />
-                      Gunakan input terstruktur
-                    </label>
-                  </div>
-                  
                   {useStructuredInput ? (
                     <StructuredItemInput
                       value={form[field] ?? ""}
                       onChange={(val) => setForm((s) => ({ ...s, [field]: val }))}
+                      finishing={form.finishing || "FI"}
+                      onFinishingChange={
+                        mode === "stock-label"
+                          ? (val) => setForm((s) => ({ ...s, finishing: val }))
+                          : undefined
+                      }
                       onUkuranChange={
                         mode === "transaksi-masuk" || mode === "transaksi-keluar"
                           ? (panjang, lebar) => {
@@ -250,13 +272,7 @@ export default function FormModal({ mode, initial, fields, categories, onClose, 
                                 ukuran_lebar: lebar,
                               }));
                             }
-                          : mode === "stock-label"
-                            ? (panjang, lebar) => {
-                                // Untuk stock label, gabungkan ukuran
-                                const ukuranValue = panjang && lebar ? `${panjang}x${lebar}` : "";
-                                setForm((s) => ({ ...s, ukuran_value: ukuranValue }));
-                              }
-                            : undefined
+                          : undefined
                       }
                     />
                   ) : (
@@ -324,7 +340,12 @@ export default function FormModal({ mode, initial, fields, categories, onClose, 
               {!!errors[field] && <p className="mt-1 text-xs text-rose-600 dark:text-rose-300">{errors[field]}</p>}
               {field === "ukuran_panjang" && mode === "stock-material" && (
                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                  Contoh 1000M x 100M: isi panjang 1000 dan lebar 100 (M tampil sebagai label).
+                  Contoh 1000M x 225mm: isi panjang 1000 (M) dan lebar 225 (mm).
+                </p>
+              )}
+              {field === "ukuran_lebar" && mode === "stock-material" && (
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  Lebar dalam mm, panjang dalam M.
                 </p>
               )}
             </label>
