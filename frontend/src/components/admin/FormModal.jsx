@@ -4,7 +4,7 @@ import { itemOptions } from "../../constants/app.js";
 import { parsePnNumber, parseUkuranMm } from "../../utils/documents.js";
 import StructuredItemInput from "./StructuredItemInput.jsx";
 
-export default function FormModal({ mode, initial, fields, categories, onClose, onSubmit, safeDateKey }) {
+export default function FormModal({ mode, initial, fields, categories, transaksiIn = [], onClose, onSubmit, safeDateKey }) {
   const seed = useMemo(() => {
     const empty = Object.fromEntries(fields.map((f) => [f, ""]));
     if (mode === "stock-label") empty.finishing = "FI";
@@ -62,9 +62,21 @@ export default function FormModal({ mode, initial, fields, categories, onClose, 
         ukuran_panjang: u.panjang,
         ukuran_lebar: u.lebar,
         jumlah_roll: initial.jumlah_roll ?? "",
+        customer: initial.customer ?? "",
       };
     }
-    if (mode === "documen-lps" || mode === "documen-sj") {
+    if (mode === "documen-lps") {
+      // Get label_masuk_ids from items
+      const labelMasukIds = initial.items ? initial.items.map(item => item.label_masuk_id) : [];
+      
+      return {
+        ...empty,
+        tanggal: safeDateKey(initial.tanggal) || "",
+        no_lps: initial.no_lps ?? "",
+        label_masuk_ids: labelMasukIds,
+      };
+    }
+    if (mode === "documen-sj") {
       let d = initial.detail_form;
       if (typeof d === "string") {
         try {
@@ -75,7 +87,6 @@ export default function FormModal({ mode, initial, fields, categories, onClose, 
       }
       return {
         ...empty,
-        no_lps: initial.no_lps ?? "",
         no_sj: initial.no_sj ?? "",
         pn: initial.pn ?? "",
         detail_customer: d?.customer ?? "",
@@ -107,8 +118,18 @@ export default function FormModal({ mode, initial, fields, categories, onClose, 
   const [isSaving, setIsSaving] = useState(false);
   const [useStructuredInput, setUseStructuredInput] = useState(false);
 
+  // Auto-fill fields when label_masuk_ids changes for documen-lps (multiple select)
+  const handleLabelMasukChange = useCallback((selectedIds) => {
+    if (!selectedIds || mode !== "documen-lps") return;
+    
+    setForm(prev => ({
+      ...prev,
+      label_masuk_ids: selectedIds,
+    }));
+  }, [mode]);
+
   const numericFields = useMemo(
-    () => new Set(["ukuran_panjang", "ukuran_lebar", "jumlah_roll", "stock_awal", "stock_total", "detail_qty"]),
+    () => new Set(["ukuran_panjang", "ukuran_lebar", "jumlah_roll", "stock_awal", "stock_total", "detail_qty", "jumlah"]),
     [],
   );
 
@@ -213,6 +234,38 @@ export default function FormModal({ mode, initial, fields, categories, onClose, 
             </p>
           </div>
         )}
+
+        {/* Info box untuk data auto-filled dari label masuk */}
+        {mode === "documen-lps" && form.label_masuk_ids && form.label_masuk_ids.length > 0 && (
+          <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 p-3 dark:border-emerald-800 dark:bg-emerald-900/20">
+            <p className="text-sm font-medium text-emerald-800 dark:text-emerald-200">
+              {form.label_masuk_ids.length} Label Masuk Dipilih:
+            </p>
+            <div className="mt-2 max-h-40 overflow-y-auto space-y-1 text-xs text-emerald-700 dark:text-emerald-300">
+              {form.label_masuk_ids.map(id => {
+                const item = transaksiIn.find(t => t.id === id);
+                return item ? (
+                  <div key={id} className="rounded bg-emerald-100 px-2 py-1 dark:bg-emerald-900/40">
+                    <span className="font-medium">{item.pn}</span> - {item.nama_item} ({item.jumlah_roll} Roll)
+                  </div>
+                ) : null;
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Info box untuk no_lps yang sudah terisi dari dokumen LPS */}
+        {mode === "transaksi-masuk" && form.no_lps && (
+          <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20">
+            <p className="text-sm font-medium text-blue-800 dark:text-blue-200">Informasi No LPS:</p>
+            <div className="mt-2 text-xs text-blue-700 dark:text-blue-300">
+              <div><span className="font-medium">No LPS:</span> {form.no_lps}</div>
+            </div>
+            <p className="mt-2 text-xs text-blue-600 dark:text-blue-400">
+              No LPS ini sudah diisi dari Dokumen LPS yang menggunakan data label masuk ini
+            </p>
+          </div>
+        )}
         
         <div className="grid gap-3 md:grid-cols-2">
           {fields.map((field) => (
@@ -238,6 +291,37 @@ export default function FormModal({ mode, initial, fields, categories, onClose, 
                     </option>
                   ))}
                 </select>
+              ) : field === "no_lps" && mode === "transaksi-masuk" ? (
+                <input
+                  type="text"
+                  value={form[field] ?? ""}
+                  readOnly
+                  disabled
+                  className="w-full rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
+                  placeholder="Otomatis dari Dokumen LPS"
+                />
+              ) : field === "label_masuk_ids" && mode === "documen-lps" ? (
+                <div className="md:col-span-2">
+                  <select
+                    multiple
+                    value={form[field] || []}
+                    onChange={(e) => {
+                      const selected = Array.from(e.target.selectedOptions, option => Number(option.value));
+                      handleLabelMasukChange(selected);
+                    }}
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-950/40 dark:text-slate-100"
+                    size={8}
+                  >
+                    {transaksiIn.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.no_lps ? `[${item.no_lps}] ` : ""}{item.pn} - {item.nama_item} ({item.jumlah_roll} Roll)
+                      </option>
+                    ))}
+                  </select>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                    Tahan Ctrl (Windows) atau Cmd (Mac) untuk memilih banyak item
+                  </p>
+                </div>
               ) : field === "kategori_id" ? (
                 <select
                   value={form[field] || ""}

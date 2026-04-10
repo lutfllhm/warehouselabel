@@ -308,7 +308,7 @@ app.post("/api/transactions/in", async (req, res) => {
     const ukuran = `${ukuran_panjang}mm x ${ukuran_lebar}mm`;
     await pool.query(
       "INSERT INTO label_masuk (tanggal, no_lps, pn, nama_item, ukuran, jumlah_roll) VALUES (?, ?, ?, ?, ?, ?)",
-      [tanggal, no_lps, pn, nama_item, ukuran, Number(jumlah_roll || 0)],
+      [tanggal, no_lps || "", pn, nama_item, ukuran, Number(jumlah_roll || 0)],
     );
     res.json({ message: "Label masuk berhasil ditambahkan" });
   } catch (error) {
@@ -324,7 +324,7 @@ app.put("/api/transactions/in/:id", async (req, res) => {
     const ukuran = `${ukuran_panjang}mm x ${ukuran_lebar}mm`;
     await pool.query(
       "UPDATE label_masuk SET tanggal=?, no_lps=?, pn=?, nama_item=?, ukuran=?, jumlah_roll=? WHERE id=?",
-      [tanggal, no_lps, pn, nama_item, ukuran, Number(jumlah_roll || 0), id],
+      [tanggal, no_lps || "", pn, nama_item, ukuran, Number(jumlah_roll || 0), id],
     );
     res.json({ message: "Label masuk berhasil diperbarui" });
   } catch (error) {
@@ -344,7 +344,7 @@ app.delete("/api/transactions/in/:id", async (req, res) => {
 
 app.get("/api/transactions/out", async (_req, res) => {
   try {
-    const [rows] = await pool.query("SELECT id, tanggal, no_sj, pn, nama_item, ukuran, jumlah_roll FROM label_keluar ORDER BY id DESC");
+    const [rows] = await pool.query("SELECT id, tanggal, no_sj, pn, nama_item, ukuran, jumlah_roll, customer FROM label_keluar ORDER BY id DESC");
     res.json(rows);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -353,12 +353,12 @@ app.get("/api/transactions/out", async (_req, res) => {
 
 app.post("/api/transactions/out", async (req, res) => {
   try {
-    const { tanggal, no_sj, pn_number, nama_item, ukuran_panjang, ukuran_lebar, jumlah_roll } = req.body;
+    const { tanggal, no_sj, pn_number, nama_item, ukuran_panjang, ukuran_lebar, jumlah_roll, customer } = req.body;
     const pn = buildPn(pn_number);
     const ukuran = `${ukuran_panjang}mm x ${ukuran_lebar}mm`;
     await pool.query(
-      "INSERT INTO label_keluar (tanggal, no_sj, pn, nama_item, ukuran, jumlah_roll) VALUES (?, ?, ?, ?, ?, ?)",
-      [tanggal, no_sj, pn, nama_item, ukuran, Number(jumlah_roll || 0)],
+      "INSERT INTO label_keluar (tanggal, no_sj, pn, nama_item, ukuran, jumlah_roll, customer) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [tanggal, no_sj, pn, nama_item, ukuran, Number(jumlah_roll || 0), customer || null],
     );
     res.json({ message: "Label keluar berhasil ditambahkan" });
   } catch (error) {
@@ -369,12 +369,12 @@ app.post("/api/transactions/out", async (req, res) => {
 app.put("/api/transactions/out/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { tanggal, no_sj, pn_number, nama_item, ukuran_panjang, ukuran_lebar, jumlah_roll } = req.body;
+    const { tanggal, no_sj, pn_number, nama_item, ukuran_panjang, ukuran_lebar, jumlah_roll, customer } = req.body;
     const pn = buildPn(pn_number);
     const ukuran = `${ukuran_panjang}mm x ${ukuran_lebar}mm`;
     await pool.query(
-      "UPDATE label_keluar SET tanggal=?, no_sj=?, pn=?, nama_item=?, ukuran=?, jumlah_roll=? WHERE id=?",
-      [tanggal, no_sj, pn, nama_item, ukuran, Number(jumlah_roll || 0), id],
+      "UPDATE label_keluar SET tanggal=?, no_sj=?, pn=?, nama_item=?, ukuran=?, jumlah_roll=?, customer=? WHERE id=?",
+      [tanggal, no_sj, pn, nama_item, ukuran, Number(jumlah_roll || 0), customer || null, id],
     );
     res.json({ message: "Label keluar berhasil diperbarui" });
   } catch (error) {
@@ -394,8 +394,22 @@ app.delete("/api/transactions/out/:id", async (req, res) => {
 
 app.get("/api/documents/lps", async (_req, res) => {
   try {
-    const [rows] = await pool.query("SELECT id, no_lps, pn, detail_form, created_at FROM lps_docs ORDER BY id DESC");
-    res.json(rows);
+    // Get LPS docs with their items
+    const [docs] = await pool.query(
+      "SELECT id, no_lps, tanggal, created_at FROM lps_docs ORDER BY id DESC"
+    );
+    
+    // Get items for each LPS doc
+    for (const doc of docs) {
+      const [items] = await pool.query(
+        "SELECT li.*, lm.no_lps, lm.pn, lm.nama_item, lm.jumlah_roll FROM lps_items li LEFT JOIN label_masuk lm ON li.label_masuk_id = lm.id WHERE li.lps_doc_id = ?",
+        [doc.id]
+      );
+      doc.items = items;
+      doc.item_count = items.length;
+    }
+    
+    res.json(docs);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -403,9 +417,127 @@ app.get("/api/documents/lps", async (_req, res) => {
 
 app.post("/api/documents/lps", async (req, res) => {
   try {
-    const { no_lps, pn, detail_form } = req.body;
-    await pool.query("INSERT INTO lps_docs (no_lps, pn, detail_form) VALUES (?, ?, ?)", [no_lps, pn, JSON.stringify(detail_form || {})]);
-    res.json({ message: "Dokumen LPS berhasil disimpan" });
+    const { no_lps, tanggal, label_masuk_ids } = req.body;
+    
+    // Insert dokumen LPS
+    const [result] = await pool.query(
+      "INSERT INTO lps_docs (no_lps, tanggal) VALUES (?, ?)",
+      [no_lps, tanggal]
+    );
+    
+    const lpsDocId = result.insertId;
+    
+    // Insert items dan update no_lps di label_masuk
+    if (label_masuk_ids && Array.isArray(label_masuk_ids) && label_masuk_ids.length > 0) {
+      for (const labelMasukId of label_masuk_ids) {
+        // Get data from label_masuk
+        const [[labelData]] = await pool.query(
+          "SELECT pn, nama_item, jumlah_roll FROM label_masuk WHERE id = ?",
+          [labelMasukId]
+        );
+        
+        if (labelData) {
+          // Insert to lps_items
+          await pool.query(
+            "INSERT INTO lps_items (lps_doc_id, label_masuk_id, p_number, nama_item, jumlah) VALUES (?, ?, ?, ?, ?)",
+            [lpsDocId, labelMasukId, labelData.pn, labelData.nama_item, labelData.jumlah_roll]
+          );
+          
+          // Update no_lps di label_masuk
+          await pool.query(
+            "UPDATE label_masuk SET no_lps = ? WHERE id = ?",
+            [no_lps, labelMasukId]
+          );
+        }
+      }
+    }
+    
+    res.json({ message: "Dokumen LPS berhasil disimpan dan No LPS telah diupdate ke Label Masuk" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.put("/api/documents/lps/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { no_lps, tanggal, label_masuk_ids } = req.body;
+    
+    // Get old label_masuk_ids to clear their no_lps
+    const [oldItems] = await pool.query(
+      "SELECT label_masuk_id FROM lps_items WHERE lps_doc_id = ?",
+      [id]
+    );
+    
+    // Clear no_lps from old label_masuk
+    for (const item of oldItems) {
+      await pool.query(
+        "UPDATE label_masuk SET no_lps = '' WHERE id = ?",
+        [item.label_masuk_id]
+      );
+    }
+    
+    // Delete old items
+    await pool.query("DELETE FROM lps_items WHERE lps_doc_id = ?", [id]);
+    
+    // Update dokumen LPS
+    await pool.query(
+      "UPDATE lps_docs SET no_lps=?, tanggal=? WHERE id=?",
+      [no_lps, tanggal, id]
+    );
+    
+    // Insert new items dan update no_lps di label_masuk
+    if (label_masuk_ids && Array.isArray(label_masuk_ids) && label_masuk_ids.length > 0) {
+      for (const labelMasukId of label_masuk_ids) {
+        // Get data from label_masuk
+        const [[labelData]] = await pool.query(
+          "SELECT pn, nama_item, jumlah_roll FROM label_masuk WHERE id = ?",
+          [labelMasukId]
+        );
+        
+        if (labelData) {
+          // Insert to lps_items
+          await pool.query(
+            "INSERT INTO lps_items (lps_doc_id, label_masuk_id, p_number, nama_item, jumlah) VALUES (?, ?, ?, ?, ?)",
+            [id, labelMasukId, labelData.pn, labelData.nama_item, labelData.jumlah_roll]
+          );
+          
+          // Update no_lps di label_masuk
+          await pool.query(
+            "UPDATE label_masuk SET no_lps = ? WHERE id = ?",
+            [no_lps, labelMasukId]
+          );
+        }
+      }
+    }
+    
+    res.json({ message: "Dokumen LPS berhasil diperbarui dan No LPS telah diupdate ke Label Masuk" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.delete("/api/documents/lps/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Get label_masuk_ids to clear their no_lps
+    const [items] = await pool.query(
+      "SELECT label_masuk_id FROM lps_items WHERE lps_doc_id = ?",
+      [id]
+    );
+    
+    // Clear no_lps from label_masuk
+    for (const item of items) {
+      await pool.query(
+        "UPDATE label_masuk SET no_lps = '' WHERE id = ?",
+        [item.label_masuk_id]
+      );
+    }
+    
+    // Delete LPS doc (items will be deleted by CASCADE)
+    await pool.query("DELETE FROM lps_docs WHERE id=?", [id]);
+    res.json({ message: "Dokumen LPS dihapus" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

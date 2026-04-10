@@ -162,6 +162,19 @@ export default function AdminLayout() {
       const mode = formState.mode;
       const id = formState.record?.id;
 
+      if (mode === "documen-lps") {
+        const endpoint = id ? `/documents/lps/${id}` : "/documents/lps";
+        const method = id ? "put" : "post";
+        await api[method](endpoint, {
+          no_lps: payload.no_lps,
+          tanggal: payload.tanggal,
+          label_masuk_ids: payload.label_masuk_ids || [],
+        });
+        setFormState({ open: false, mode: "", record: null });
+        await loadAll();
+        push({ type: "success", title: "Berhasil", message: "Dokumen LPS tersimpan dan No LPS telah diupdate ke Label Masuk." });
+        return;
+      }
       if (mode === "lps") {
         await api.post("/documents/lps", {
           no_lps: payload.no_lps,
@@ -177,7 +190,7 @@ export default function AdminLayout() {
         push({ type: "success", title: "Berhasil", message: "Dokumen LPS tersimpan." });
         return;
       }
-      if (mode === "sj") {
+      if (mode === "documen-sj") {
         await api.post("/documents/sj", {
           no_sj: payload.no_sj,
           pn: payload.pn,
@@ -229,8 +242,8 @@ export default function AdminLayout() {
     "stock-label": ["tanggal", "pn_number", "nama_item", "stock_awal", "stock_total", "isi"],
     kategori: ["nama_kategori", "supplier"],
     "transaksi-masuk": ["tanggal", "no_lps", "pn_number", "nama_item", "ukuran_panjang", "ukuran_lebar", "jumlah_roll"],
-    "transaksi-keluar": ["tanggal", "no_sj", "pn_number", "nama_item", "ukuran_panjang", "ukuran_lebar", "jumlah_roll"],
-    "documen-lps": ["no_lps", "pn", "detail_customer", "detail_qty", "detail_notes"],
+    "transaksi-keluar": ["tanggal", "no_sj", "pn_number", "nama_item", "ukuran_panjang", "ukuran_lebar", "jumlah_roll", "customer"],
+    "documen-lps": ["tanggal", "no_lps", "label_masuk_ids"],
     "documen-sj": ["no_sj", "pn", "detail_customer", "detail_qty", "detail_notes"],
     users: ["full_name", "username", "password", "role"],
     backup: ["note"],
@@ -389,6 +402,7 @@ export default function AdminLayout() {
           initial={formState.record}
           fields={dynamicFormFields[formState.mode]}
           categories={dataMap.kategori}
+          transaksiIn={dataMap.transaksiIn}
           onClose={() => setFormState({ open: false, mode: "", record: null })}
           onSubmit={submitForm}
           safeDateKey={safeDateKey}
