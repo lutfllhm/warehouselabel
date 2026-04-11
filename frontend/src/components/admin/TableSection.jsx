@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Search, Printer, Edit2, Trash2, Eye } from "lucide-react";
+import { Search, FileSpreadsheet, Edit2, Trash2, Eye } from "lucide-react";
 import Card from "../ui/Card.jsx";
 import { PrimaryButton } from "../ui/PrimaryButton.jsx";
 
@@ -87,11 +87,11 @@ export default function TableSection({
                         {onPrint && (
                           <button 
                             type="button" 
-                            className="inline-flex items-center justify-center rounded-lg p-1.5 text-sky-600 transition hover:bg-sky-50 dark:text-sky-400 dark:hover:bg-sky-500/10" 
+                            className="inline-flex items-center justify-center rounded-lg p-1.5 text-emerald-600 transition hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-500/10" 
                             onClick={() => onPrint(row)}
-                            title="Cetak"
+                            title="Export Excel"
                           >
-                            <Printer size={16} />
+                            <FileSpreadsheet size={16} />
                           </button>
                         )}
                         <button 

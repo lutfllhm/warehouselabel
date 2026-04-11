@@ -1,11 +1,13 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import TableSection from "../../components/admin/TableSection.jsx";
 import LpsDetailModal from "../../components/admin/LpsDetailModal.jsx";
 import { useAdminOutlet } from "./useAdminOutlet.js";
 
 export default function DocumenLpsPage() {
-  const { dataMap, openForm, openPrintDocument } = useAdminOutlet();
+  const { dataMap, openForm } = useAdminOutlet();
   const [detailDoc, setDetailDoc] = useState(null);
+  const navigate = useNavigate();
 
   return (
     <>
@@ -19,7 +21,7 @@ export default function DocumenLpsPage() {
         onOpenForm={(row) => openForm("documen-lps", row)}
         onOpenDetail={(row) => setDetailDoc(row)}
         onPrint={(row) => {
-          openPrintDocument(`LPS ${row.no_lps}`, row);
+          navigate("/app/lps-export", { state: { lpsDoc: row } });
         }}
       />
 

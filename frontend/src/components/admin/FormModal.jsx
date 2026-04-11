@@ -4,7 +4,7 @@ import { itemOptions } from "../../constants/app.js";
 import { parsePnNumber, parseUkuranMm } from "../../utils/documents.js";
 import StructuredItemInput from "./StructuredItemInput.jsx";
 
-export default function FormModal({ mode, initial, fields, categories, transaksiIn = [], onClose, onSubmit, safeDateKey }) {
+export default function FormModal({ mode, initial, fields, categories, transaksiIn = [], transaksiOut = [], onClose, onSubmit, safeDateKey }) {
   const seed = useMemo(() => {
     const empty = Object.fromEntries(fields.map((f) => [f, ""]));
     if (mode === "stock-label") empty.finishing = "FI";
@@ -77,21 +77,14 @@ export default function FormModal({ mode, initial, fields, categories, transaksi
       };
     }
     if (mode === "documen-sj") {
-      let d = initial.detail_form;
-      if (typeof d === "string") {
-        try {
-          d = JSON.parse(d);
-        } catch {
-          d = {};
-        }
-      }
+      // Get label_keluar_ids from items
+      const labelKeluarIds = initial.items ? initial.items.map(item => item.label_keluar_id) : [];
+      
       return {
         ...empty,
+        tanggal: safeDateKey(initial.tanggal) || "",
         no_sj: initial.no_sj ?? "",
-        pn: initial.pn ?? "",
-        detail_customer: d?.customer ?? "",
-        detail_qty: d?.qty ?? "",
-        detail_notes: d?.notes ?? "",
+        label_keluar_ids: labelKeluarIds,
       };
     }
     if (mode === "users") {
@@ -125,6 +118,16 @@ export default function FormModal({ mode, initial, fields, categories, transaksi
     setForm(prev => ({
       ...prev,
       label_masuk_ids: selectedIds,
+    }));
+  }, [mode]);
+
+  // Auto-fill fields when label_keluar_ids changes for documen-sj (multiple select)
+  const handleLabelKeluarChange = useCallback((selectedIds) => {
+    if (!selectedIds || mode !== "documen-sj") return;
+    
+    setForm(prev => ({
+      ...prev,
+      label_keluar_ids: selectedIds,
     }));
   }, [mode]);
 
@@ -254,6 +257,25 @@ export default function FormModal({ mode, initial, fields, categories, transaksi
           </div>
         )}
 
+        {/* Info box untuk data auto-filled dari label keluar */}
+        {mode === "documen-sj" && form.label_keluar_ids && form.label_keluar_ids.length > 0 && (
+          <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 p-3 dark:border-emerald-800 dark:bg-emerald-900/20">
+            <p className="text-sm font-medium text-emerald-800 dark:text-emerald-200">
+              {form.label_keluar_ids.length} Label Keluar Dipilih:
+            </p>
+            <div className="mt-2 max-h-40 overflow-y-auto space-y-1 text-xs text-emerald-700 dark:text-emerald-300">
+              {form.label_keluar_ids.map(id => {
+                const item = (transaksiOut || []).find(t => t.id === id);
+                return item ? (
+                  <div key={id} className="rounded bg-emerald-100 px-2 py-1 dark:bg-emerald-900/40">
+                    <span className="font-medium">{item.pn}</span> - {item.nama_item} ({item.jumlah_roll} Roll) - {item.customer || "No Customer"}
+                  </div>
+                ) : null;
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Info box untuk no_lps yang sudah terisi dari dokumen LPS */}
         {mode === "transaksi-masuk" && form.no_lps && (
           <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20">
@@ -263,6 +285,19 @@ export default function FormModal({ mode, initial, fields, categories, transaksi
             </div>
             <p className="mt-2 text-xs text-blue-600 dark:text-blue-400">
               No LPS ini sudah diisi dari Dokumen LPS yang menggunakan data label masuk ini
+            </p>
+          </div>
+        )}
+
+        {/* Info box untuk no_sj yang sudah terisi dari dokumen SJ */}
+        {mode === "transaksi-keluar" && form.no_sj && (
+          <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20">
+            <p className="text-sm font-medium text-blue-800 dark:text-blue-200">Informasi No SJ:</p>
+            <div className="mt-2 text-xs text-blue-700 dark:text-blue-300">
+              <div><span className="font-medium">No SJ:</span> {form.no_sj}</div>
+            </div>
+            <p className="mt-2 text-xs text-blue-600 dark:text-blue-400">
+              No SJ ini sudah diisi dari Dokumen SJ yang menggunakan data label keluar ini
             </p>
           </div>
         )}
@@ -300,6 +335,15 @@ export default function FormModal({ mode, initial, fields, categories, transaksi
                   className="w-full rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
                   placeholder="Otomatis dari Dokumen LPS"
                 />
+              ) : field === "no_sj" && mode === "transaksi-keluar" ? (
+                <input
+                  type="text"
+                  value={form[field] ?? ""}
+                  readOnly
+                  disabled
+                  className="w-full rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
+                  placeholder="Otomatis dari Dokumen SJ"
+                />
               ) : field === "label_masuk_ids" && mode === "documen-lps" ? (
                 <div className="md:col-span-2">
                   <select
@@ -315,6 +359,28 @@ export default function FormModal({ mode, initial, fields, categories, transaksi
                     {transaksiIn.map((item) => (
                       <option key={item.id} value={item.id}>
                         {item.no_lps ? `[${item.no_lps}] ` : ""}{item.pn} - {item.nama_item} ({item.jumlah_roll} Roll)
+                      </option>
+                    ))}
+                  </select>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                    Tahan Ctrl (Windows) atau Cmd (Mac) untuk memilih banyak item
+                  </p>
+                </div>
+              ) : field === "label_keluar_ids" && mode === "documen-sj" ? (
+                <div className="md:col-span-2">
+                  <select
+                    multiple
+                    value={form[field] || []}
+                    onChange={(e) => {
+                      const selected = Array.from(e.target.selectedOptions, option => Number(option.value));
+                      handleLabelKeluarChange(selected);
+                    }}
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-950/40 dark:text-slate-100"
+                    size={8}
+                  >
+                    {(transaksiOut || []).map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.no_sj ? `[${item.no_sj}] ` : ""}{item.pn} - {item.nama_item} ({item.jumlah_roll} Roll) - {item.customer || "No Customer"}
                       </option>
                     ))}
                   </select>

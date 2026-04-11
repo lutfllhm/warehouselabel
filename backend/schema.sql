@@ -137,11 +137,29 @@ CREATE TABLE IF NOT EXISTS lps_docs (
 CREATE TABLE IF NOT EXISTS sj_docs (
   id INT PRIMARY KEY AUTO_INCREMENT,
   no_sj VARCHAR(120) NOT NULL,
-  pn VARCHAR(60) NOT NULL,
-  detail_form JSON NULL,
+  tanggal DATE NULL,
+  customer VARCHAR(120) NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_no_sj (no_sj),
-  INDEX idx_pn (pn)
+  INDEX idx_customer (customer)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================
+-- TABLE: sj_items
+-- Deskripsi: Item-item dalam dokumen SJ (relasi many-to-many)
+-- ============================================
+CREATE TABLE IF NOT EXISTS sj_items (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  sj_doc_id INT NOT NULL,
+  label_keluar_id INT NOT NULL,
+  pn VARCHAR(120) NULL,
+  nama_item VARCHAR(120) NULL,
+  jumlah INT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_sj_doc_id (sj_doc_id),
+  INDEX idx_label_keluar_id (label_keluar_id),
+  FOREIGN KEY (sj_doc_id) REFERENCES sj_docs(id) ON DELETE CASCADE,
+  FOREIGN KEY (label_keluar_id) REFERENCES label_keluar(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================

@@ -545,8 +545,22 @@ app.delete("/api/documents/lps/:id", async (req, res) => {
 
 app.get("/api/documents/sj", async (_req, res) => {
   try {
-    const [rows] = await pool.query("SELECT id, no_sj, pn, detail_form, created_at FROM sj_docs ORDER BY id DESC");
-    res.json(rows);
+    // Get SJ docs with their items
+    const [docs] = await pool.query(
+      "SELECT id, no_sj, tanggal, customer, created_at FROM sj_docs ORDER BY id DESC"
+    );
+    
+    // Get items for each SJ doc
+    for (const doc of docs) {
+      const [items] = await pool.query(
+        "SELECT si.*, lk.no_sj, lk.pn, lk.nama_item, lk.jumlah_roll FROM sj_items si LEFT JOIN label_keluar lk ON si.label_keluar_id = lk.id WHERE si.sj_doc_id = ?",
+        [doc.id]
+      );
+      doc.items = items;
+      doc.item_count = items.length;
+    }
+    
+    res.json(docs);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -554,9 +568,147 @@ app.get("/api/documents/sj", async (_req, res) => {
 
 app.post("/api/documents/sj", async (req, res) => {
   try {
-    const { no_sj, pn, detail_form } = req.body;
-    await pool.query("INSERT INTO sj_docs (no_sj, pn, detail_form) VALUES (?, ?, ?)", [no_sj, pn, JSON.stringify(detail_form || {})]);
-    res.json({ message: "Dokumen SJ berhasil disimpan" });
+    const { no_sj, tanggal, label_keluar_ids } = req.body;
+    
+    // Get customer from first label_keluar (assuming all have same customer)
+    let customer = null;
+    if (label_keluar_ids && Array.isArray(label_keluar_ids) && label_keluar_ids.length > 0) {
+      const [[firstLabel]] = await pool.query(
+        "SELECT customer FROM label_keluar WHERE id = ?",
+        [label_keluar_ids[0]]
+      );
+      customer = firstLabel?.customer || null;
+    }
+    
+    // Insert dokumen SJ
+    const [result] = await pool.query(
+      "INSERT INTO sj_docs (no_sj, tanggal, customer) VALUES (?, ?, ?)",
+      [no_sj, tanggal, customer]
+    );
+    
+    const sjDocId = result.insertId;
+    
+    // Insert items dan update no_sj di label_keluar
+    if (label_keluar_ids && Array.isArray(label_keluar_ids) && label_keluar_ids.length > 0) {
+      for (const labelKeluarId of label_keluar_ids) {
+        // Get data from label_keluar
+        const [[labelData]] = await pool.query(
+          "SELECT pn, nama_item, jumlah_roll FROM label_keluar WHERE id = ?",
+          [labelKeluarId]
+        );
+        
+        if (labelData) {
+          // Insert to sj_items
+          await pool.query(
+            "INSERT INTO sj_items (sj_doc_id, label_keluar_id, pn, nama_item, jumlah) VALUES (?, ?, ?, ?, ?)",
+            [sjDocId, labelKeluarId, labelData.pn, labelData.nama_item, labelData.jumlah_roll]
+          );
+          
+          // Update no_sj di label_keluar
+          await pool.query(
+            "UPDATE label_keluar SET no_sj = ? WHERE id = ?",
+            [no_sj, labelKeluarId]
+          );
+        }
+      }
+    }
+    
+    res.json({ message: "Dokumen SJ berhasil disimpan dan No SJ telah diupdate ke Label Keluar" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.put("/api/documents/sj/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { no_sj, tanggal, label_keluar_ids } = req.body;
+    
+    // Get customer from first label_keluar (assuming all have same customer)
+    let customer = null;
+    if (label_keluar_ids && Array.isArray(label_keluar_ids) && label_keluar_ids.length > 0) {
+      const [[firstLabel]] = await pool.query(
+        "SELECT customer FROM label_keluar WHERE id = ?",
+        [label_keluar_ids[0]]
+      );
+      customer = firstLabel?.customer || null;
+    }
+    
+    // Get old label_keluar_ids to clear their no_sj
+    const [oldItems] = await pool.query(
+      "SELECT label_keluar_id FROM sj_items WHERE sj_doc_id = ?",
+      [id]
+    );
+    
+    // Clear no_sj from old label_keluar
+    for (const item of oldItems) {
+      await pool.query(
+        "UPDATE label_keluar SET no_sj = '' WHERE id = ?",
+        [item.label_keluar_id]
+      );
+    }
+    
+    // Delete old items
+    await pool.query("DELETE FROM sj_items WHERE sj_doc_id = ?", [id]);
+    
+    // Update dokumen SJ
+    await pool.query(
+      "UPDATE sj_docs SET no_sj=?, tanggal=?, customer=? WHERE id=?",
+      [no_sj, tanggal, customer, id]
+    );
+    
+    // Insert new items dan update no_sj di label_keluar
+    if (label_keluar_ids && Array.isArray(label_keluar_ids) && label_keluar_ids.length > 0) {
+      for (const labelKeluarId of label_keluar_ids) {
+        // Get data from label_keluar
+        const [[labelData]] = await pool.query(
+          "SELECT pn, nama_item, jumlah_roll FROM label_keluar WHERE id = ?",
+          [labelKeluarId]
+        );
+        
+        if (labelData) {
+          // Insert to sj_items
+          await pool.query(
+            "INSERT INTO sj_items (sj_doc_id, label_keluar_id, pn, nama_item, jumlah) VALUES (?, ?, ?, ?, ?)",
+            [id, labelKeluarId, labelData.pn, labelData.nama_item, labelData.jumlah_roll]
+          );
+          
+          // Update no_sj di label_keluar
+          await pool.query(
+            "UPDATE label_keluar SET no_sj = ? WHERE id = ?",
+            [no_sj, labelKeluarId]
+          );
+        }
+      }
+    }
+    
+    res.json({ message: "Dokumen SJ berhasil diperbarui dan No SJ telah diupdate ke Label Keluar" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.delete("/api/documents/sj/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Get label_keluar_ids to clear their no_sj
+    const [items] = await pool.query(
+      "SELECT label_keluar_id FROM sj_items WHERE sj_doc_id = ?",
+      [id]
+    );
+    
+    // Clear no_sj from label_keluar
+    for (const item of items) {
+      await pool.query(
+        "UPDATE label_keluar SET no_sj = '' WHERE id = ?",
+        [item.label_keluar_id]
+      );
+    }
+    
+    // Delete SJ doc (items will be deleted by CASCADE)
+    await pool.query("DELETE FROM sj_docs WHERE id=?", [id]);
+    res.json({ message: "Dokumen SJ dihapus" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

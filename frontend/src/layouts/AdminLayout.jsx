@@ -191,18 +191,16 @@ export default function AdminLayout() {
         return;
       }
       if (mode === "documen-sj") {
-        await api.post("/documents/sj", {
+        const endpoint = id ? `/documents/sj/${id}` : "/documents/sj";
+        const method = id ? "put" : "post";
+        await api[method](endpoint, {
           no_sj: payload.no_sj,
-          pn: payload.pn,
-          detail_form: {
-            customer: payload.detail_customer,
-            qty: payload.detail_qty,
-            notes: payload.detail_notes,
-          },
+          tanggal: payload.tanggal,
+          label_keluar_ids: payload.label_keluar_ids || [],
         });
         setFormState({ open: false, mode: "", record: null });
         await loadAll();
-        push({ type: "success", title: "Berhasil", message: "Dokumen SJ tersimpan." });
+        push({ type: "success", title: "Berhasil", message: "Dokumen SJ tersimpan dan No SJ telah diupdate ke Label Keluar." });
         return;
       }
 
@@ -244,7 +242,7 @@ export default function AdminLayout() {
     "transaksi-masuk": ["tanggal", "no_lps", "pn_number", "nama_item", "ukuran_panjang", "ukuran_lebar", "jumlah_roll"],
     "transaksi-keluar": ["tanggal", "no_sj", "pn_number", "nama_item", "ukuran_panjang", "ukuran_lebar", "jumlah_roll", "customer"],
     "documen-lps": ["tanggal", "no_lps", "label_masuk_ids"],
-    "documen-sj": ["no_sj", "pn", "detail_customer", "detail_qty", "detail_notes"],
+    "documen-sj": ["tanggal", "no_sj", "label_keluar_ids"],
     users: ["full_name", "username", "password", "role"],
     backup: ["note"],
     setting: ["setting_key", "setting_value"],
@@ -403,6 +401,7 @@ export default function AdminLayout() {
           fields={dynamicFormFields[formState.mode]}
           categories={dataMap.kategori}
           transaksiIn={dataMap.transaksiIn}
+          transaksiOut={dataMap.transaksiOut}
           onClose={() => setFormState({ open: false, mode: "", record: null })}
           onSubmit={submitForm}
           safeDateKey={safeDateKey}

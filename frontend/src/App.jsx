@@ -19,6 +19,8 @@ import DocumenSjPage from "./pages/admin/DocumenSjPage.jsx";
 import UsersPage from "./pages/admin/UsersPage.jsx";
 import BackupPage from "./pages/admin/BackupPage.jsx";
 import SettingPage from "./pages/admin/SettingPage.jsx";
+import LpsExportPage from "./pages/admin/LpsExportPage.jsx";
+import SjExportPage from "./pages/admin/SjExportPage.jsx";
 
 function PrivateRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -70,7 +72,9 @@ export default function App() {
               <Route path="transaksi-masuk" element={<TransaksiMasukPage />} />
               <Route path="transaksi-keluar" element={<TransaksiKeluarPage />} />
               <Route path="documen-lps" element={<DocumenLpsPage />} />
+              <Route path="lps-export" element={<LpsExportPage />} />
               <Route path="documen-sj" element={<DocumenSjPage />} />
+              <Route path="sj-export" element={<SjExportPage />} />
               <Route path="users" element={<UsersPage />} />
               <Route path="backup" element={<BackupPage />} />
               <Route path="setting" element={<SettingPage />} />
