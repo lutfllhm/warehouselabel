@@ -1,0 +1,49 @@
+# Railway ignore file
+# Files and directories to exclude from Railway deployments
+
+# Development files
+*.log
+*.md
+!DEPLOYMENT.md
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Node modules (will be installed during build)
+node_modules/
+
+# Build artifacts (will be generated)
+dist/
+build/
+
+# Test files
+*.test.js
+*.spec.js
+__tests__/
+
+# Documentation
+docs/
+*.md
+!README.md
+!DEPLOYMENT.md
+
+# Format files (not needed in production)
+format/
+
+# Migration files (run separately)
+backend/migrations/
+
+# Scripts (not needed in production)
+backend/scripts/
