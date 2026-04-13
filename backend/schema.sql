@@ -124,11 +124,27 @@ CREATE TABLE IF NOT EXISTS label_keluar (
 CREATE TABLE IF NOT EXISTS lps_docs (
   id INT PRIMARY KEY AUTO_INCREMENT,
   no_lps VARCHAR(120) NOT NULL,
-  pn VARCHAR(60) NOT NULL,
-  detail_form JSON NULL,
+  tanggal DATE NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX idx_no_lps (no_lps),
-  INDEX idx_pn (pn)
+  INDEX idx_no_lps (no_lps)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================
+-- TABLE: lps_items
+-- Deskripsi: Item-item dalam dokumen LPS (relasi many-to-many)
+-- ============================================
+CREATE TABLE IF NOT EXISTS lps_items (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  lps_doc_id INT NOT NULL,
+  label_masuk_id INT NOT NULL,
+  p_number VARCHAR(120) NULL,
+  nama_item VARCHAR(120) NULL,
+  jumlah INT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_lps_doc_id (lps_doc_id),
+  INDEX idx_label_masuk_id (label_masuk_id),
+  FOREIGN KEY (lps_doc_id) REFERENCES lps_docs(id) ON DELETE CASCADE,
+  FOREIGN KEY (label_masuk_id) REFERENCES label_masuk(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================
