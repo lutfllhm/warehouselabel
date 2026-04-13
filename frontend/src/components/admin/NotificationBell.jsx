@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Bell, X, Check, CheckCheck, Trash2 } from "lucide-react";
 import { api } from "../../api/client.js";
 import { useNotifications } from "../../providers/useNotifications.js";
+import { useRealtimeData } from "../../hooks/useRealtimeData.js";
 
 export default function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
@@ -28,11 +29,24 @@ export default function NotificationBell() {
 
   useEffect(() => {
     loadNotifications();
-    
-    // Poll for new notifications every 30 seconds
-    const interval = setInterval(loadNotifications, 30000);
-    return () => clearInterval(interval);
   }, []);
+
+  // Listen to realtime notification updates
+  useRealtimeData(['notification'], (payload) => {
+    console.log('🔔 New notification received:', payload.data);
+    
+    // Show toast notification
+    if (payload.data?.message) {
+      push({
+        type: 'info',
+        title: 'Aktivitas Baru',
+        message: payload.data.message
+      });
+    }
+    
+    // Reload notifications
+    loadNotifications();
+  });
 
   useEffect(() => {
     const handleClickOutside = (event) => {

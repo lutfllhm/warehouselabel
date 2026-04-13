@@ -21,6 +21,7 @@ import BackupPage from "./pages/admin/BackupPage.jsx";
 import SettingPage from "./pages/admin/SettingPage.jsx";
 import LpsExportPage from "./pages/admin/LpsExportPage.jsx";
 import SjExportPage from "./pages/admin/SjExportPage.jsx";
+import ReportPage from "./pages/admin/ReportPage.jsx";
 
 function PrivateRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -75,6 +76,7 @@ export default function App() {
               <Route path="lps-export" element={<LpsExportPage />} />
               <Route path="documen-sj" element={<DocumenSjPage />} />
               <Route path="sj-export" element={<SjExportPage />} />
+              <Route path="report" element={<ReportPage />} />
               <Route path="users" element={<UsersPage />} />
               <Route path="backup" element={<BackupPage />} />
               <Route path="setting" element={<SettingPage />} />

@@ -1,4 +1,6 @@
 const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -6,6 +8,13 @@ const pool = require("./db");
 require("dotenv").config();
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: process.env.CORS_ORIGIN || '*',
+    credentials: true
+  }
+});
 
 // CORS configuration
 const corsOptions = {
@@ -18,6 +27,20 @@ app.use(express.json());
 
 const SECRET = process.env.JWT_SECRET || "warehouse-secret";
 
+// Socket.IO connection handler
+io.on('connection', (socket) => {
+  console.log('Client connected:', socket.id);
+  
+  socket.on('disconnect', () => {
+    console.log('Client disconnected:', socket.id);
+  });
+});
+
+// Helper function untuk emit realtime updates
+function emitDataUpdate(eventType, data) {
+  io.emit('data-update', { type: eventType, data });
+}
+
 // Helper function untuk mencatat notifikasi
 async function createNotification(userId, username, actionType, entityType, entityName, message) {
   try {
@@ -25,6 +48,16 @@ async function createNotification(userId, username, actionType, entityType, enti
       "INSERT INTO notifications (user_id, username, action_type, entity_type, entity_name, message) VALUES (?, ?, ?, ?, ?, ?)",
       [userId, username, actionType, entityType, entityName, message]
     );
+    
+    // Emit realtime notification to all connected clients
+    emitDataUpdate('notification', {
+      action: actionType,
+      userId,
+      username,
+      entityType,
+      entityName,
+      message
+    });
   } catch (error) {
     console.error("Error creating notification:", error);
   }
@@ -127,6 +160,9 @@ app.post("/api/material-stocks", async (req, res) => {
       `${username} menambahkan stock material "${nama_material}"`
     );
     
+    // Emit realtime update
+    emitDataUpdate('material-stocks', { action: 'create' });
+    
     res.json({ message: "Data material berhasil ditambahkan" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -163,6 +199,9 @@ app.put("/api/material-stocks/:id", async (req, res) => {
       `${username} mengupdate stock material "${nama_material}"`
     );
     
+    // Emit realtime update
+    emitDataUpdate('material-stocks', { action: 'update', id });
+    
     res.json({ message: "Data material berhasil diperbarui" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -188,6 +227,9 @@ app.delete("/api/material-stocks/:id", async (req, res) => {
       materialName,
       `${username} menghapus stock material "${materialName}"`
     );
+    
+    // Emit realtime update
+    emitDataUpdate('material-stocks', { action: 'delete', id });
     
     res.json({ message: "Data material dihapus" });
   } catch (error) {
@@ -220,6 +262,10 @@ app.post("/api/label-stocks", async (req, res) => {
       "INSERT INTO label_stocks (tanggal, pn_prefix, nama_item, ukuran_value, stock_awal, stock_total, finishing, isi, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [tanggal, pn, nama_item, ukuran_value, Number(stock_awal || 0), Number(stock_total || 0), finishing, isi, status],
     );
+    
+    // Emit realtime update
+    emitDataUpdate('label-stocks', { action: 'create' });
+    
     res.json({ message: "Data label berhasil ditambahkan" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -236,6 +282,10 @@ app.put("/api/label-stocks/:id", async (req, res) => {
       "UPDATE label_stocks SET tanggal=?, pn_prefix=?, nama_item=?, ukuran_value=?, stock_awal=?, stock_total=?, finishing=?, isi=?, status=? WHERE id=?",
       [tanggal, pn, nama_item, ukuran_value, Number(stock_awal || 0), Number(stock_total || 0), finishing, isi, status, id],
     );
+    
+    // Emit realtime update
+    emitDataUpdate('label-stocks', { action: 'update', id });
+    
     res.json({ message: "Data label berhasil diperbarui" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -246,6 +296,10 @@ app.delete("/api/label-stocks/:id", async (req, res) => {
   try {
     const { id } = req.params;
     await pool.query("DELETE FROM label_stocks WHERE id=?", [id]);
+    
+    // Emit realtime update
+    emitDataUpdate('label-stocks', { action: 'delete', id });
+    
     res.json({ message: "Data label dihapus" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -265,6 +319,10 @@ app.post("/api/categories", async (req, res) => {
   try {
     const { nama_kategori, supplier } = req.body;
     await pool.query("INSERT INTO categories (nama_kategori, supplier) VALUES (?, ?)", [nama_kategori, supplier]);
+    
+    // Emit realtime update
+    emitDataUpdate('categories', { action: 'create' });
+    
     res.json({ message: "Kategori berhasil ditambahkan" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -276,6 +334,10 @@ app.put("/api/categories/:id", async (req, res) => {
     const { id } = req.params;
     const { nama_kategori, supplier } = req.body;
     await pool.query("UPDATE categories SET nama_kategori=?, supplier=? WHERE id=?", [nama_kategori, supplier, id]);
+    
+    // Emit realtime update
+    emitDataUpdate('categories', { action: 'update', id });
+    
     res.json({ message: "Kategori berhasil diperbarui" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -286,6 +348,10 @@ app.delete("/api/categories/:id", async (req, res) => {
   try {
     const { id } = req.params;
     await pool.query("DELETE FROM categories WHERE id=?", [id]);
+    
+    // Emit realtime update
+    emitDataUpdate('categories', { action: 'delete', id });
+    
     res.json({ message: "Kategori dihapus" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -310,6 +376,11 @@ app.post("/api/transactions/in", async (req, res) => {
       "INSERT INTO label_masuk (tanggal, no_lps, pn, nama_item, ukuran, jumlah_roll) VALUES (?, ?, ?, ?, ?, ?)",
       [tanggal, no_lps || "", pn, nama_item, ukuran, Number(jumlah_roll || 0)],
     );
+    
+    // Emit realtime update
+    emitDataUpdate('transactions-in', { action: 'create' });
+    emitDataUpdate('dashboard', { action: 'update' });
+    
     res.json({ message: "Label masuk berhasil ditambahkan" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -326,6 +397,11 @@ app.put("/api/transactions/in/:id", async (req, res) => {
       "UPDATE label_masuk SET tanggal=?, no_lps=?, pn=?, nama_item=?, ukuran=?, jumlah_roll=? WHERE id=?",
       [tanggal, no_lps || "", pn, nama_item, ukuran, Number(jumlah_roll || 0), id],
     );
+    
+    // Emit realtime update
+    emitDataUpdate('transactions-in', { action: 'update', id });
+    emitDataUpdate('dashboard', { action: 'update' });
+    
     res.json({ message: "Label masuk berhasil diperbarui" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -336,6 +412,11 @@ app.delete("/api/transactions/in/:id", async (req, res) => {
   try {
     const { id } = req.params;
     await pool.query("DELETE FROM label_masuk WHERE id=?", [id]);
+    
+    // Emit realtime update
+    emitDataUpdate('transactions-in', { action: 'delete', id });
+    emitDataUpdate('dashboard', { action: 'update' });
+    
     res.json({ message: "Label masuk dihapus" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -360,6 +441,11 @@ app.post("/api/transactions/out", async (req, res) => {
       "INSERT INTO label_keluar (tanggal, no_sj, pn, nama_item, ukuran, jumlah_roll, customer) VALUES (?, ?, ?, ?, ?, ?, ?)",
       [tanggal, no_sj, pn, nama_item, ukuran, Number(jumlah_roll || 0), customer || null],
     );
+    
+    // Emit realtime update
+    emitDataUpdate('transactions-out', { action: 'create' });
+    emitDataUpdate('dashboard', { action: 'update' });
+    
     res.json({ message: "Label keluar berhasil ditambahkan" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -376,6 +462,11 @@ app.put("/api/transactions/out/:id", async (req, res) => {
       "UPDATE label_keluar SET tanggal=?, no_sj=?, pn=?, nama_item=?, ukuran=?, jumlah_roll=?, customer=? WHERE id=?",
       [tanggal, no_sj, pn, nama_item, ukuran, Number(jumlah_roll || 0), customer || null, id],
     );
+    
+    // Emit realtime update
+    emitDataUpdate('transactions-out', { action: 'update', id });
+    emitDataUpdate('dashboard', { action: 'update' });
+    
     res.json({ message: "Label keluar berhasil diperbarui" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -386,6 +477,11 @@ app.delete("/api/transactions/out/:id", async (req, res) => {
   try {
     const { id } = req.params;
     await pool.query("DELETE FROM label_keluar WHERE id=?", [id]);
+    
+    // Emit realtime update
+    emitDataUpdate('transactions-out', { action: 'delete', id });
+    emitDataUpdate('dashboard', { action: 'update' });
+    
     res.json({ message: "Label keluar dihapus" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -871,8 +967,208 @@ app.delete("/api/notifications/:id", async (req, res) => {
   }
 });
 
+// Report endpoints
+app.get("/api/reports/summary", async (req, res) => {
+  try {
+    const { start_date, end_date, period } = req.query;
+    
+    let dateFilter = "";
+    let params = [];
+    
+    if (period === "today") {
+      dateFilter = "DATE(tanggal) = CURDATE()";
+    } else if (period === "this_week") {
+      dateFilter = "YEARWEEK(tanggal, 1) = YEARWEEK(CURDATE(), 1)";
+    } else if (period === "this_month") {
+      dateFilter = "YEAR(tanggal) = YEAR(CURDATE()) AND MONTH(tanggal) = MONTH(CURDATE())";
+    } else if (period === "this_year") {
+      dateFilter = "YEAR(tanggal) = YEAR(CURDATE())";
+    } else if (start_date && end_date) {
+      dateFilter = "tanggal BETWEEN ? AND ?";
+      params = [start_date, end_date];
+    }
+    
+    const whereClause = dateFilter ? `WHERE ${dateFilter}` : "";
+    
+    // Get label masuk summary
+    const [labelMasuk] = await pool.query(
+      `SELECT COUNT(*) as total_transaksi, COALESCE(SUM(jumlah_roll), 0) as total_roll FROM label_masuk ${whereClause}`,
+      params
+    );
+    
+    // Get label keluar summary
+    const [labelKeluar] = await pool.query(
+      `SELECT COUNT(*) as total_transaksi, COALESCE(SUM(jumlah_roll), 0) as total_roll FROM label_keluar ${whereClause}`,
+      params
+    );
+    
+    // Get material stocks summary
+    const [materialStocks] = await pool.query(
+      `SELECT COUNT(*) as total_transaksi, COALESCE(SUM(jumlah_roll), 0) as total_roll FROM material_stocks ${whereClause}`,
+      params
+    );
+    
+    // Get LPS documents summary
+    const [lpsCount] = await pool.query(
+      `SELECT COUNT(*) as total FROM lps_docs ${whereClause}`,
+      params
+    );
+    
+    // Get SJ documents summary
+    const [sjCount] = await pool.query(
+      `SELECT COUNT(*) as total FROM sj_docs ${whereClause}`,
+      params
+    );
+    
+    res.json({
+      label_masuk: {
+        total_transaksi: labelMasuk[0].total_transaksi,
+        total_roll: labelMasuk[0].total_roll
+      },
+      label_keluar: {
+        total_transaksi: labelKeluar[0].total_transaksi,
+        total_roll: labelKeluar[0].total_roll
+      },
+      material_stocks: {
+        total_transaksi: materialStocks[0].total_transaksi,
+        total_roll: materialStocks[0].total_roll
+      },
+      lps_documents: lpsCount[0].total,
+      sj_documents: sjCount[0].total
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.get("/api/reports/transactions", async (req, res) => {
+  try {
+    const { start_date, end_date, period, type } = req.query;
+    
+    let dateFilter = "";
+    let params = [];
+    
+    if (period === "today") {
+      dateFilter = "DATE(tanggal) = CURDATE()";
+    } else if (period === "this_week") {
+      dateFilter = "YEARWEEK(tanggal, 1) = YEARWEEK(CURDATE(), 1)";
+    } else if (period === "this_month") {
+      dateFilter = "YEAR(tanggal) = YEAR(CURDATE()) AND MONTH(tanggal) = MONTH(CURDATE())";
+    } else if (period === "this_year") {
+      dateFilter = "YEAR(tanggal) = YEAR(CURDATE())";
+    } else if (start_date && end_date) {
+      dateFilter = "tanggal BETWEEN ? AND ?";
+      params = [start_date, end_date];
+    }
+    
+    const whereClause = dateFilter ? `WHERE ${dateFilter}` : "";
+    
+    let data = [];
+    
+    if (!type || type === "masuk") {
+      const [masuk] = await pool.query(
+        `SELECT id, tanggal, no_lps, pn, nama_item, ukuran, jumlah_roll, 'masuk' as type FROM label_masuk ${whereClause} ORDER BY tanggal DESC`,
+        params
+      );
+      data = [...data, ...masuk];
+    }
+    
+    if (!type || type === "keluar") {
+      const [keluar] = await pool.query(
+        `SELECT id, tanggal, no_sj, pn, nama_item, ukuran, jumlah_roll, customer, 'keluar' as type FROM label_keluar ${whereClause} ORDER BY tanggal DESC`,
+        params
+      );
+      data = [...data, ...keluar];
+    }
+    
+    // Sort by date descending
+    data.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+    
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.get("/api/reports/by-item", async (req, res) => {
+  try {
+    const { start_date, end_date, period } = req.query;
+    
+    let dateFilter = "";
+    let params = [];
+    
+    if (period === "today") {
+      dateFilter = "DATE(tanggal) = CURDATE()";
+    } else if (period === "this_week") {
+      dateFilter = "YEARWEEK(tanggal, 1) = YEARWEEK(CURDATE(), 1)";
+    } else if (period === "this_month") {
+      dateFilter = "YEAR(tanggal) = YEAR(CURDATE()) AND MONTH(tanggal) = MONTH(CURDATE())";
+    } else if (period === "this_year") {
+      dateFilter = "YEAR(tanggal) = YEAR(CURDATE())";
+    } else if (start_date && end_date) {
+      dateFilter = "tanggal BETWEEN ? AND ?";
+      params = [start_date, end_date];
+    }
+    
+    const whereClause = dateFilter ? `WHERE ${dateFilter}` : "";
+    
+    // Get label masuk by item
+    const [masukByItem] = await pool.query(
+      `SELECT nama_item, pn, COUNT(*) as total_transaksi, SUM(jumlah_roll) as total_roll FROM label_masuk ${whereClause} GROUP BY nama_item, pn ORDER BY total_roll DESC`,
+      params
+    );
+    
+    // Get label keluar by item
+    const [keluarByItem] = await pool.query(
+      `SELECT nama_item, pn, COUNT(*) as total_transaksi, SUM(jumlah_roll) as total_roll FROM label_keluar ${whereClause} GROUP BY nama_item, pn ORDER BY total_roll DESC`,
+      params
+    );
+    
+    res.json({
+      masuk: masukByItem,
+      keluar: keluarByItem
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.get("/api/reports/by-customer", async (req, res) => {
+  try {
+    const { start_date, end_date, period } = req.query;
+    
+    let dateFilter = "";
+    let params = [];
+    
+    if (period === "today") {
+      dateFilter = "DATE(tanggal) = CURDATE()";
+    } else if (period === "this_week") {
+      dateFilter = "YEARWEEK(tanggal, 1) = YEARWEEK(CURDATE(), 1)";
+    } else if (period === "this_month") {
+      dateFilter = "YEAR(tanggal) = YEAR(CURDATE()) AND MONTH(tanggal) = MONTH(CURDATE())";
+    } else if (period === "this_year") {
+      dateFilter = "YEAR(tanggal) = YEAR(CURDATE())";
+    } else if (start_date && end_date) {
+      dateFilter = "tanggal BETWEEN ? AND ?";
+      params = [start_date, end_date];
+    }
+    
+    const whereClause = dateFilter ? `WHERE ${dateFilter}` : "";
+    
+    const [byCustomer] = await pool.query(
+      `SELECT customer, COUNT(*) as total_transaksi, SUM(jumlah_roll) as total_roll FROM label_keluar ${whereClause} GROUP BY customer ORDER BY total_roll DESC`,
+      params
+    );
+    
+    res.json(byCustomer);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   // eslint-disable-next-line no-console
   console.log(`API running on port ${PORT}`);
+  console.log(`Socket.IO ready for realtime updates`);
 });

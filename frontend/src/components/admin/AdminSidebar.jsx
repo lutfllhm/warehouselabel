@@ -40,7 +40,7 @@ export default function AdminSidebar({
     () => (
       <div className="flex h-full flex-col">
         {/* Header */}
-        <div className={`flex items-center justify-between gap-3 ${collapsed ? "flex-col px-2" : "px-4"}`}>
+        <div className={`flex shrink-0 items-center justify-between gap-3 ${collapsed ? "flex-col px-2" : "px-4"}`}>
           <div className={`flex items-center gap-3 ${collapsed ? "flex-col" : ""}`}>
             <div className="relative">
               <div className="absolute inset-0 animate-pulse rounded-xl bg-indigo-500/20 blur-md"></div>
@@ -84,9 +84,9 @@ export default function AdminSidebar({
         </div>
 
         {/* Divider */}
-        <div className={`my-4 border-t border-slate-200 dark:border-slate-700 ${collapsed ? "mx-2" : "mx-4"}`}></div>
+        <div className={`my-4 shrink-0 border-t border-slate-200 dark:border-slate-700 ${collapsed ? "mx-2" : "mx-4"}`}></div>
 
-        {/* Navigation */}
+        {/* Navigation - Scrollable */}
         <nav className={`flex-1 space-y-2 overflow-y-auto ${collapsed ? "px-2" : "px-3"}`}>
           {menus.map((m) => {
             const Icon = m.icon;
@@ -220,11 +220,8 @@ export default function AdminSidebar({
           })}
         </nav>
 
-        {/* Divider */}
-        <div className={`my-3 border-t border-slate-200 dark:border-slate-700 ${collapsed ? "mx-2" : "mx-4"}`}></div>
-
-        {/* Logout button */}
-        <div className={collapsed ? "px-2" : "px-3"}>
+        {/* Logout button - Fixed at bottom */}
+        <div className={`mt-auto shrink-0 border-t border-slate-200 pt-3 dark:border-slate-700 ${collapsed ? "px-2 pb-3" : "px-3 pb-3"}`}>
           <button
             type="button"
             onClick={onLogout}
@@ -249,9 +246,9 @@ export default function AdminSidebar({
 
   return (
     <>
-      {/* Desktop Sidebar */}
+      {/* Desktop Sidebar - Fixed/Sticky */}
       <aside
-        className={`hidden shrink-0 border-r border-slate-200 bg-white py-5 shadow-sm transition-all duration-300 dark:border-slate-700 dark:bg-slate-900 lg:block ${
+        className={`sticky top-0 hidden h-screen shrink-0 border-r border-slate-200 bg-white py-5 shadow-sm transition-all duration-300 dark:border-slate-700 dark:bg-slate-900 lg:block ${
           collapsed ? "w-20" : "w-72"
         }`}
       >

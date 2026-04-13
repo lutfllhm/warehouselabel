@@ -45,38 +45,38 @@ export default function HomePage() {
   const features = [
     {
       icon: Package,
-      title: "Inventori Label",
-      description: "Tracking stok label dan material dengan sistem pencatatan yang terorganisir dan mudah diakses.",
+      title: "Stok Label & Material",
+      description: "Cek stok label dan material kapan aja. Semua tercatat rapi, tinggal buka sistem.",
       color: "indigo",
     },
     {
       icon: BarChart3,
-      title: "Dashboard Analytics",
-      description: "Monitoring performa gudang dengan visualisasi data yang jelas dan mudah dipahami.",
+      title: "Dashboard",
+      description: "Lihat data gudang dalam bentuk grafik. Langsung paham kondisi stok tanpa buka-buka laporan.",
       color: "sky",
     },
     {
       icon: FileText,
-      title: "Dokumentasi Digital",
-      description: "Arsip dokumen LPS & SJ tersimpan rapi dan dapat diakses kapan saja.",
+      title: "Arsip Dokumen",
+      description: "Dokumen LPS & SJ tersimpan digital. Mau cari dokumen lama? Tinggal search aja.",
       color: "emerald",
     },
     {
       icon: TrendingUp,
-      title: "Tracking Transaksi",
-      description: "Pencatatan transaksi masuk/keluar dengan histori lengkap untuk audit internal.",
+      title: "Riwayat Transaksi",
+      description: "Semua transaksi masuk-keluar tercatat otomatis. Butuh audit? Data lengkap semua.",
       color: "amber",
     },
     {
       icon: Lock,
-      title: "Akses Terkontrol",
-      description: "Sistem login dengan role-based access untuk keamanan data perusahaan.",
+      title: "Login Aman",
+      description: "Setiap user punya akses sesuai tugasnya. Data perusahaan tetap aman.",
       color: "rose",
     },
     {
       icon: Users,
-      title: "Multi-User System",
-      description: "Mendukung akses simultan untuk tim dengan role yang berbeda.",
+      title: "Bisa Banyak User",
+      description: "Tim bisa akses bareng-bareng tanpa bentrok. Masing-masing punya role sendiri.",
       color: "purple",
     },
   ];
@@ -108,13 +108,13 @@ export default function HomePage() {
 
             <div className="space-y-4">
               <h1 className="text-5xl font-bold leading-tight tracking-tight text-white drop-shadow-lg lg:text-6xl">
-                Sistem Manajemen{" "}
+                Kelola Gudang Label{" "}
                 <span className="bg-gradient-to-r from-indigo-200 via-purple-200 to-pink-200 bg-clip-text text-transparent">
-                  Warehouse Label
+                  Jadi Lebih Mudah
                 </span>
               </h1>
               <p className="text-lg leading-relaxed text-white/90 drop-shadow-md">
-                Platform internal untuk mengelola inventori label, tracking material, dokumentasi transaksi, dan monitoring operasional gudang secara real-time.
+                Catat stok label, tracking material masuk-keluar, simpan dokumen LPS & SJ, semua dalam satu tempat. Gak perlu ribet lagi.
               </p>
             </div>
 
@@ -157,9 +157,9 @@ export default function HomePage() {
       <section className="relative border-t border-white/20 bg-white/10 py-16 backdrop-blur-md">
         <div className="mx-auto max-w-7xl px-6">
           <div className="mb-8 text-center">
-            <h2 className="text-3xl font-bold text-white drop-shadow-lg lg:text-4xl">Fitur Sistem</h2>
+            <h2 className="text-3xl font-bold text-white drop-shadow-lg lg:text-4xl">Apa Aja yang Bisa Dilakukan?</h2>
             <p className="mx-auto mt-3 max-w-2xl text-lg text-white/90">
-              Fitur lengkap untuk operasional warehouse label yang efisien dan terorganisir
+              Fitur-fitur yang bikin kerja di gudang jadi lebih gampang
             </p>
           </div>
 
@@ -206,52 +206,52 @@ export default function HomePage() {
               </div>
               <h2 className="mt-4 text-3xl font-bold text-white">RBM Warehouse Label</h2>
               <p className="mt-4 leading-relaxed text-white/90">
-                Sistem internal untuk manajemen warehouse label yang dirancang khusus untuk kebutuhan operasional RBM. Membantu tim dalam tracking inventori, dokumentasi, dan monitoring aktivitas gudang secara efisien.
+                Sistem khusus buat gudang label RBM. Dibuat supaya tracking stok, nyimpen dokumen, sama ngecek aktivitas gudang jadi lebih praktis. Gak perlu manual lagi.
               </p>
             </div>
 
             <div className="lg:col-span-2">
               <div className="grid gap-6 sm:grid-cols-2">
                 <div className="rounded-2xl border border-white/30 bg-white/10 p-6 shadow-sm backdrop-blur-sm">
-                  <h3 className="text-lg font-semibold text-white">Fungsi Utama</h3>
+                  <h3 className="text-lg font-semibold text-white">Yang Bisa Dikerjakan</h3>
                   <ul className="mt-4 space-y-3 text-sm text-white/90">
                     <li className="flex items-start gap-2">
                       <CheckCircle2 size={16} className="mt-0.5 flex-shrink-0 text-emerald-500" />
-                      Tracking stok material & label per Roll
+                      Cek stok material & label per roll
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 size={16} className="mt-0.5 flex-shrink-0 text-emerald-500" />
-                      Pencatatan transaksi masuk/keluar otomatis
+                      Catat transaksi masuk/keluar otomatis
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 size={16} className="mt-0.5 flex-shrink-0 text-emerald-500" />
-                      Arsip dokumen LPS/SJ digital
+                      Simpan dokumen LPS/SJ digital
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 size={16} className="mt-0.5 flex-shrink-0 text-emerald-500" />
-                      Backup data dan audit trail
+                      Backup data & histori lengkap
                     </li>
                   </ul>
                 </div>
 
                 <div className="rounded-2xl border border-white/30 bg-white/10 p-6 shadow-sm backdrop-blur-sm">
-                  <h3 className="text-lg font-semibold text-white">Keunggulan</h3>
+                  <h3 className="text-lg font-semibold text-white">Kenapa Pakai Ini?</h3>
                   <ul className="mt-4 space-y-3 text-sm text-white/90">
                     <li className="flex items-start gap-2">
                       <CheckCircle2 size={16} className="mt-0.5 flex-shrink-0 text-indigo-500" />
-                      Data akurat dan dapat dipertanggungjawabkan
+                      Data akurat, bisa dipercaya
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 size={16} className="mt-0.5 flex-shrink-0 text-indigo-500" />
-                      Interface sederhana dan mudah digunakan
+                      Tampilannya simpel, gampang dipake
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 size={16} className="mt-0.5 flex-shrink-0 text-indigo-500" />
-                      Format data konsisten dan terstandar
+                      Format data rapi & konsisten
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 size={16} className="mt-0.5 flex-shrink-0 text-indigo-500" />
-                      Akses aman dengan role management
+                      Aman, tiap user punya akses sendiri
                     </li>
                   </ul>
                 </div>
@@ -280,9 +280,9 @@ export default function HomePage() {
       <section className="relative border-t border-white/20 bg-white/5 py-16 backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-6">
           <div className="mb-8 text-center">
-            <h2 className="text-3xl font-bold text-white drop-shadow-lg lg:text-4xl">Galeri Warehouse</h2>
+            <h2 className="text-3xl font-bold text-white drop-shadow-lg lg:text-4xl">Foto-Foto Gudang</h2>
             <p className="mx-auto mt-3 max-w-2xl text-lg text-white/90">
-              Dokumentasi area kerja dan aktivitas operasional warehouse
+              Begini suasana kerja di warehouse kita
             </p>
           </div>
 
@@ -308,7 +308,7 @@ export default function HomePage() {
               <BrandLogo className="h-10 w-10" imgClassName="object-contain" />
               <div>
                 <p className="text-base font-semibold text-white">RBM Warehouse Label</p>
-                <p className="text-sm text-white/70">Sistem Internal • Tracking • Dokumentasi • Monitoring</p>
+                <p className="text-sm text-white/70">Sistem Internal • Tracking Stok • Arsip Digital</p>
               </div>
             </div>
             <div className="text-center md:text-right">
@@ -316,7 +316,7 @@ export default function HomePage() {
                 © {new Date().getFullYear()} RBM Warehouse Label. Sistem Internal.
               </p>
               <p className="mt-1 text-xs text-white/60">
-                Platform manajemen warehouse untuk operasional yang efisien
+                Bikin kerja di gudang jadi lebih praktis
               </p>
             </div>
           </div>

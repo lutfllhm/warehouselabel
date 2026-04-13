@@ -1,4 +1,4 @@
-import { ArrowDownToLine, ArrowUpFromLine, BarChart3, Database, FileText, LayoutDashboard, Package, PackageOpen, Receipt, Repeat2, Settings, Users, Warehouse } from "lucide-react";
+import { ArrowDownToLine, ArrowUpFromLine, BarChart3, Database, FileText, LayoutDashboard, LineChart, Package, PackageOpen, Receipt, Repeat2, Settings, Users, Warehouse } from "lucide-react";
 
 export const menus = [
   { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -27,6 +27,7 @@ export const menus = [
       { key: "documen-sj", label: "Documen SJ", icon: FileText },
     ],
   },
+  { key: "report", label: "Report", icon: LineChart },
   { key: "users", label: "Manajemen User", icon: Users },
   { key: "backup", label: "Backup Database", icon: Database },
   { key: "setting", label: "Setting", icon: Settings },

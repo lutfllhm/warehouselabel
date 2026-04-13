@@ -28,11 +28,11 @@ export default function LoginPage() {
       const { data } = await api.post("/auth/login", form);
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
-      push({ type: "success", title: "Login berhasil", message: "Selamat datang kembali." });
+      push({ type: "success", title: "Berhasil masuk", message: "Selamat datang!" });
       navigate("/app/dashboard");
     } catch {
-      setError("Login gagal, cek username/password.");
-      push({ type: "error", title: "Login gagal", message: "Pastikan username dan password benar." });
+      setError("Gagal login, cek lagi username/password-nya.");
+      push({ type: "error", title: "Gagal login", message: "Username atau password salah nih." });
     } finally {
       setIsSubmitting(false);
     }
@@ -64,21 +64,21 @@ export default function LoginPage() {
           </div>
 
           <p className="mt-4 max-w-lg text-slate-600 dark:text-slate-300">
-            Login untuk mengakses sistem manajemen warehouse. Kelola inventori, tracking transaksi, dan dokumentasi dengan mudah.
+            Login dulu buat akses sistem gudang. Nanti bisa kelola stok, cek transaksi, sama lihat dokumen.
           </p>
 
           <div className="mt-8 grid gap-3 sm:grid-cols-3">
             <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-              <p className="text-xs font-semibold text-indigo-700 dark:text-indigo-300">Efisien</p>
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Proses cepat dan terorganisir.</p>
+              <p className="text-xs font-semibold text-indigo-700 dark:text-indigo-300">Cepat</p>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Gak ribet, langsung pakai.</p>
             </div>
             <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
               <p className="text-xs font-semibold text-indigo-700 dark:text-indigo-300">Akurat</p>
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Data real-time dan terpercaya.</p>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Data update terus, bisa dipercaya.</p>
             </div>
             <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
               <p className="text-xs font-semibold text-indigo-700 dark:text-indigo-300">Aman</p>
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Akses terkontrol dan secure.</p>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Cuma yang punya akses bisa masuk.</p>
             </div>
           </div>
         </div>
@@ -89,8 +89,8 @@ export default function LoginPage() {
             <div className="pointer-events-none absolute -left-24 -bottom-24 h-56 w-56 rounded-full bg-sky-50 blur-2xl dark:bg-sky-500/12" />
 
             <div className="relative">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">Login Sistem</h2>
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Gunakan kredensial yang telah terdaftar untuk mengakses sistem.</p>
+              <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">Login Dulu Yuk</h2>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Pakai username dan password yang udah didaftarin.</p>
 
               <form className="mt-6 space-y-4" onSubmit={submit}>
                 <label className="block text-sm">
@@ -136,7 +136,7 @@ export default function LoginPage() {
                 </PrimaryButton>
 
                 <p className="pt-2 text-xs text-slate-500 dark:text-slate-400">
-                  Sistem ini hanya untuk penggunaan internal RBM. Akses tidak sah akan dicatat.
+                  Sistem ini khusus buat internal RBM aja ya. Jangan coba-coba akses sembarangan.
                 </p>
               </form>
             </div>

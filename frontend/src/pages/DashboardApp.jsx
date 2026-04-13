@@ -29,6 +29,9 @@ import { useNotifications } from "../providers/useNotifications.js";
 import { useTheme } from "../providers/useTheme.js";
 import DetailModal from "../components/admin/DetailModal.jsx";
 import ConfirmDialog from "../components/admin/ConfirmDialog.jsx";
+import NotificationBell from "../components/admin/NotificationBell.jsx";
+import { initSocket } from "../utils/socket.js";
+import { useRealtimeData } from "../hooks/useRealtimeData.js";
 
 function safeDateKey(value) {
   if (!value) return null;
@@ -856,6 +859,21 @@ export default function DashboardApp() {
     return () => clearTimeout(id);
   }, [loadAll, push]);
 
+  // Initialize Socket.IO connection
+  useEffect(() => {
+    initSocket();
+  }, []);
+
+  // Listen to realtime updates
+  useRealtimeData(
+    ['material-stocks', 'label-stocks', 'categories', 'transactions-in', 'transactions-out', 'dashboard'],
+    useCallback((payload) => {
+      console.log('🔄 Auto-refreshing data due to realtime update:', payload.type);
+      // Refresh data when any update happens
+      void loadAll();
+    }, [loadAll])
+  );
+
   const doDelete = useCallback(
     async (endpoint, delId) => {
       setConfirmDelete({ endpoint, delId });
@@ -1402,6 +1420,7 @@ export default function DashboardApp() {
                 <p className="font-semibold text-slate-900 dark:text-slate-100">{user.full_name || user.username || "Admin"}</p>
                 {user.role && <p className="text-slate-500 dark:text-slate-400">Role: {user.role}</p>}
               </div>
+              <NotificationBell />
               <ThemeToggle size={16} variant="switch" />
               <button
                 type="button"
