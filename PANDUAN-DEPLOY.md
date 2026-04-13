@@ -248,8 +248,10 @@ curl http://localhost
 
 Buka browser dan akses:
 ```
-http://ip-vps-anda
+http://ip-vps-anda:8080
 ```
+
+**Catatan:** Aplikasi berjalan di port 8080. Jika ingin akses tanpa port (port 80), setup reverse proxy atau SSL di langkah 7-8.
 
 Jika berhasil, Anda akan melihat halaman login aplikasi.
 
@@ -325,11 +327,13 @@ docker-compose restart
 
 ```bash
 # Test dari VPS
-curl http://warehouselabel.iwareid.com
+curl http://warehouselabel.iwareid.com:8080
 
 # Atau buka di browser
-http://warehouselabel.iwareid.com
+http://warehouselabel.iwareid.com:8080
 ```
+
+**Catatan:** Untuk akses tanpa port (:8080), lanjutkan ke Langkah 8 untuk setup SSL/reverse proxy.
 
 ---
 
@@ -440,6 +444,8 @@ server {
 }
 ```
 
+**Catatan:** Konfigurasi ini akan membuat aplikasi bisa diakses tanpa port (langsung https://warehouselabel.iwareid.com)
+
 ### 8.5 Update docker-compose.yml
 
 ```bash
@@ -505,6 +511,9 @@ sudo ufw allow 80/tcp
 # Allow HTTPS
 sudo ufw allow 443/tcp
 
+# Allow port 8080 (untuk akses langsung tanpa SSL)
+sudo ufw allow 8080/tcp
+
 # Enable firewall
 sudo ufw enable
 
@@ -521,7 +530,10 @@ To                         Action      From
 22/tcp                     ALLOW       Anywhere
 80/tcp                     ALLOW       Anywhere
 443/tcp                    ALLOW       Anywhere
+8080/tcp                   ALLOW       Anywhere
 ```
+
+**Catatan:** Port 8080 diperlukan jika belum setup SSL. Setelah SSL aktif, bisa dinonaktifkan dengan `sudo ufw delete allow 8080/tcp`
 
 ---
 
@@ -745,6 +757,7 @@ sudo certbot renew --dry-run
 # Cek apa yang menggunakan port
 sudo netstat -tulpn | grep :80
 sudo netstat -tulpn | grep :443
+sudo netstat -tulpn | grep :8080
 
 # Stop Apache/Nginx lain
 sudo systemctl stop apache2
@@ -753,6 +766,9 @@ sudo systemctl stop nginx
 # Disable auto-start
 sudo systemctl disable apache2
 sudo systemctl disable nginx
+
+# Atau ubah port di docker-compose.yml
+# Contoh: ubah "8080:80" menjadi "8081:80" jika port 8080 sudah dipakai
 ```
 
 ### ❌ Out of disk space
@@ -897,8 +913,12 @@ Aplikasi Warehouse Label Management Anda sekarang sudah running di VPS!
 
 ### Akses Aplikasi:
 
-- **HTTP**: `http://warehouselabel.iwareid.com`
-- **HTTPS**: `https://warehouselabel.iwareid.com`
+**Sebelum SSL:**
+- **HTTP**: `http://warehouselabel.iwareid.com:8080`
+- **Atau via IP**: `http://ip-vps-anda:8080`
+
+**Setelah SSL (Langkah 8):**
+- **HTTPS**: `https://warehouselabel.iwareid.com` (tanpa port)
 
 ### Default Login:
 
