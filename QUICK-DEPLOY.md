@@ -4,7 +4,7 @@ Perintah cepat untuk deploy setelah fix port error.
 
 ## Status Saat Ini
 
-✅ Port sudah diubah dari 80 ke 8080 di `docker-compose.yml`
+✅ Port sudah diubah ke **9000** di `docker-compose.yml`
 ✅ Dockerfile.frontend sudah diupdate (npm install)
 ✅ Konfigurasi sudah siap
 
@@ -49,28 +49,28 @@ docker-compose logs -f db
 
 **Via browser:**
 ```
-http://ip-vps-anda:8080
+http://ip-vps-anda:9000
 ```
 
 **Via curl dari VPS:**
 ```bash
-curl http://localhost:8080
+curl http://localhost:9000
 ```
 
 ## Troubleshooting
 
-### Jika port 8080 juga sudah dipakai
+### Jika port 9000 juga sudah dipakai
 
 Edit `docker-compose.yml`, ubah baris:
 ```yaml
 ports:
-  - "8080:80"
+  - "9000:80"
 ```
 
 Menjadi port lain yang kosong, misalnya:
 ```yaml
 ports:
-  - "8081:80"
+  - "9001:80"
 ```
 
 Lalu jalankan:
@@ -83,7 +83,7 @@ docker-compose up -d
 
 1. Cek port yang digunakan:
 ```bash
-sudo netstat -tulpn | grep :8080
+sudo netstat -tulpn | grep :9000
 ```
 
 2. Lihat logs detail:
@@ -100,8 +100,8 @@ docker-compose up -d
 ## Setup Firewall (Jangan Lupa!)
 
 ```bash
-# Allow port 8080
-sudo ufw allow 8080/tcp
+# Allow port 9000
+sudo ufw allow 9000/tcp
 
 # Cek status
 sudo ufw status
@@ -111,7 +111,7 @@ sudo ufw status
 
 Setelah berhasil deploy:
 
-**URL:** `http://warehouselabel.iwareid.com:8080`
+**URL:** `http://warehouselabel.iwareid.com:9000`
 
 **Login:**
 - Username: `superadmin`
@@ -121,7 +121,7 @@ Setelah berhasil deploy:
 
 ## Next Steps
 
-Setelah aplikasi berjalan dengan baik di port 8080:
+Setelah aplikasi berjalan dengan baik di port 9000:
 
 1. **Setup SSL** (opsional tapi recommended)
    - Ikuti Langkah 8 di `PANDUAN-DEPLOY.md`
