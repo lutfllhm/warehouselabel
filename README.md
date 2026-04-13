@@ -36,6 +36,7 @@ bash scripts/setup-railway.sh
 
 - **🚀 [RAILWAY-QUICKSTART.md](./RAILWAY-QUICKSTART.md)** - Deploy dalam 10 menit
 - **📖 [DEPLOYMENT.md](./DEPLOYMENT.md)** - Panduan lengkap deployment
+- **🗄️ [DATABASE-SETUP.md](./DATABASE-SETUP.md)** - Setup database otomatis
 - **⚙️ [RAILWAY-CONFIG.md](./RAILWAY-CONFIG.md)** - Penjelasan file konfigurasi
 - **🔧 [RAILWAY-TROUBLESHOOTING.md](./RAILWAY-TROUBLESHOOTING.md)** - Fix build errors
 - **🔐 [JWT-SETUP.md](./JWT-SETUP.md)** - Setup JWT Secret (lengkap)

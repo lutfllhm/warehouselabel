@@ -21,7 +21,18 @@ railway add --database mysql
 # Atau via Dashboard: New → Database → MySQL
 ```
 
-### 3. Import Database Schema
+### 3. Import Database Schema (Otomatis ⭐)
+```bash
+# Run init script via Railway (Recommended)
+railway run --service backend npm run init-db
+```
+
+Script akan otomatis:
+- ✅ Membuat 13 tabel
+- ✅ Membuat user admin default
+- ✅ Verifikasi setup berhasil
+
+**Atau manual:**
 ```bash
 # Connect to MySQL
 railway connect MySQL
@@ -30,6 +41,8 @@ railway connect MySQL
 source backend/schema.sql;
 exit;
 ```
+
+Lihat [DATABASE-SETUP.md](./DATABASE-SETUP.md) untuk panduan lengkap.
 
 ### 4. Deploy Backend
 ```bash
@@ -78,6 +91,10 @@ railway up
 ```
 
 ### 7. Create Admin User
+
+**Jika menggunakan `npm run init-db` di step 3, admin user sudah otomatis dibuat. Skip step ini.**
+
+**Jika manual:**
 ```sql
 -- Connect to MySQL
 railway connect MySQL
