@@ -20,34 +20,11 @@ npm install
 npm run dev
 ```
 
-### Deploy to Railway
-
-**Quick Deploy (10 minutes):**
-```bash
-bash scripts/setup-railway.sh
-```
-
-**Or follow guides:**
-- [Railway Quick Start](./RAILWAY-QUICKSTART.md) - 10 minute guide
-- [Full Deployment Guide](./DEPLOYMENT.md) - Complete documentation
-- [Deployment Checklist](./DEPLOYMENT-CHECKLIST.md) - Step-by-step checklist
-
-## 📚 Documentation
-
-- **🚀 [RAILWAY-QUICKSTART.md](./RAILWAY-QUICKSTART.md)** - Deploy dalam 10 menit
-- **📖 [DEPLOYMENT.md](./DEPLOYMENT.md)** - Panduan lengkap deployment
-- **🗄️ [DATABASE-SETUP.md](./DATABASE-SETUP.md)** - Setup database otomatis
-- **⚙️ [RAILWAY-CONFIG.md](./RAILWAY-CONFIG.md)** - Penjelasan file konfigurasi
-- **🔧 [RAILWAY-TROUBLESHOOTING.md](./RAILWAY-TROUBLESHOOTING.md)** - Fix build errors
-- **🔐 [JWT-SETUP.md](./JWT-SETUP.md)** - Setup JWT Secret (lengkap)
-- **⚡ [JWT-QUICK-REFERENCE.md](./JWT-QUICK-REFERENCE.md)** - JWT quick commands
-
 ## 🏗️ Tech Stack
 
 - **Frontend:** React, Vite, TailwindCSS, Socket.IO Client
 - **Backend:** Node.js, Express, Socket.IO, JWT
 - **Database:** MySQL
-- **Deployment:** Railway
 
 ## ✨ Features
 
@@ -65,13 +42,12 @@ bash scripts/setup-railway.sh
 .
 ├── backend/          # Node.js API server
 ├── frontend/         # React application
-├── scripts/          # Deployment scripts
 └── format/           # Excel templates
 ```
 
 ## 🔐 Default Credentials
 
-After deployment, create admin user:
+After setup, create admin user:
 - Username: `admin`
 - Password: `admin123`
 

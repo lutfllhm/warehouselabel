@@ -2,7 +2,6 @@
 .env
 .env.local
 .env.*.local
-.env.railway
 
 # Logs
 logs
@@ -35,11 +34,3 @@ build/
 
 # OS
 Thumbs.db
-
-# Railway
-.railway/
-
-# Backup files
-*.sql.backup
-*.bak
-backups/
