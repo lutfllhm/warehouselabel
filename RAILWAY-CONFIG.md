@@ -8,13 +8,11 @@ Ringkasan file-file konfigurasi untuk Railway deployment.
 .
 ├── backend/
 │   ├── railway.toml          # Railway config
-│   ├── nixpacks.toml         # Build config
 │   ├── Procfile              # Process definition
 │   └── .env.railway          # Env vars template
 │
 ├── frontend/
 │   ├── railway.toml          # Railway config
-│   ├── nixpacks.toml         # Build config
 │   ├── Procfile              # Process definition
 │   └── .env.railway          # Env vars template
 │
@@ -33,30 +31,17 @@ Ringkasan file-file konfigurasi untuk Railway deployment.
 Railway-specific configuration untuk build dan deploy.
 
 **Backend:**
-- Build: `npm install`
+- Build: Auto-detected by Railway
 - Start: `npm start`
 - Health check: `/api/health`
 
 **Frontend:**
-- Build: `npm install && npm run build`
+- Build: Auto-detected by Railway (`npm run build`)
 - Start: `npx serve -s dist -l $PORT`
 - Health check: `/`
 
-### `nixpacks.toml`
-Build system configuration (Railway menggunakan Nixpacks).
-
-**Backend:**
-- Node.js 20
-- Install: `npm ci`
-- Start: `npm start`
-
-**Frontend:**
-- Node.js 20
-- Build: `npm run build`
-- Start: `npx serve -s dist -l $PORT`
-
 ### `Procfile`
-Process definition (alternative to railway.toml).
+Process definition yang Railway gunakan untuk start aplikasi.
 
 **Backend:** `web: npm start`
 **Frontend:** `web: npx serve -s dist -l $PORT`

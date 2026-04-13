@@ -35,9 +35,12 @@ exit;
 ```bash
 cd backend
 
+# Generate JWT Secret
+JWT_SECRET=$(node -e "console.log(require('crypto').randomBytes(64).toString('hex'))")
+
 # Set environment variables
 railway variables set NODE_ENV=production
-railway variables set JWT_SECRET=$(node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
+railway variables set JWT_SECRET="$JWT_SECRET"
 
 # Deploy
 railway up
@@ -93,6 +96,22 @@ Login dengan:
 - Password: `admin123`
 
 **Jangan lupa ganti password setelah login pertama!**
+
+---
+
+## 🔐 JWT Secret Info
+
+JWT Secret sudah di-generate otomatis saat deploy. Jika perlu generate manual:
+
+```bash
+# Generate JWT Secret
+node scripts/generate-jwt-secret.js
+
+# Atau quick command
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+```
+
+Lihat [JWT-SETUP.md](./JWT-SETUP.md) untuk panduan lengkap.
 
 ---
 

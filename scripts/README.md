@@ -128,3 +128,47 @@ railway login
 - Check Railway dashboard for errors
 - View logs: `railway logs`
 - Run health check: `bash scripts/check-deployment.sh`
+
+
+---
+
+### 5. `generate-jwt-secret.js`
+**Generate JWT secret** - Script untuk generate JWT secret yang aman.
+
+```bash
+node scripts/generate-jwt-secret.js
+```
+
+**Output:**
+- JWT secret (128 characters)
+- Instruksi cara set di Railway
+- Security best practices
+
+**When to use:**
+- Sebelum deploy pertama kali
+- Saat rotate JWT secret
+- Setup environment baru (staging/production)
+
+---
+
+## 🔐 JWT Secret
+
+JWT Secret diperlukan untuk authentication. Generate dengan:
+
+```bash
+node scripts/generate-jwt-secret.js
+```
+
+Atau quick command:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+```
+
+Set di Railway:
+
+```bash
+railway variables set JWT_SECRET="<generated-secret>"
+```
+
+**Lihat:** [JWT-SETUP.md](../JWT-SETUP.md) untuk panduan lengkap.
