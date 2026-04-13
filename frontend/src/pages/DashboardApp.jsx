@@ -1486,8 +1486,12 @@ export default function DashboardApp() {
             initial={formState.record}
             fields={dynamicFormFields[formState.mode]}
             categories={dataMap.kategori}
+            labelStocks={dataMap.label}
+            transaksiIn={dataMap.transaksiIn}
+            transaksiOut={dataMap.transaksiOut}
             onClose={() => setFormState({ open: false, mode: "", record: null })}
             onSubmit={submitForm}
+            safeDateKey={safeDateKey}
           />
         )}
 

@@ -4,7 +4,7 @@ import { itemOptions } from "../../constants/app.js";
 import { parsePnNumber, parseUkuranMm } from "../../utils/documents.js";
 import StructuredItemInput from "./StructuredItemInput.jsx";
 
-export default function FormModal({ mode, initial, fields, categories, transaksiIn = [], transaksiOut = [], onClose, onSubmit, safeDateKey }) {
+export default function FormModal({ mode, initial, fields, categories, labelStocks = [], transaksiIn = [], transaksiOut = [], onClose, onSubmit, safeDateKey }) {
   const seed = useMemo(() => {
     const empty = Object.fromEntries(fields.map((f) => [f, ""]));
     if (mode === "stock-label") empty.finishing = "FI";
@@ -110,6 +110,36 @@ export default function FormModal({ mode, initial, fields, categories, transaksi
   const [errors, setErrors] = useState({});
   const [isSaving, setIsSaving] = useState(false);
   const [useStructuredInput, setUseStructuredInput] = useState(false);
+
+  // Auto-fill fields when PN is selected from datalist for transaksi-masuk or transaksi-keluar
+  const handlePnChange = useCallback((pnValue) => {
+    if (!pnValue || (mode !== "transaksi-masuk" && mode !== "transaksi-keluar")) {
+      setForm(prev => ({ ...prev, pn_number: pnValue }));
+      return;
+    }
+    
+    // Find matching stock by PN (with or without /label-RBM suffix)
+    const pnToMatch = pnValue.includes("/label-RBM") ? pnValue : `${pnValue}/label-RBM`;
+    const stock = labelStocks.find(s => s.pn_prefix === pnToMatch);
+    
+    if (stock) {
+      // Parse ukuran dari format "100x50" atau "100mm x 50mm"
+      const ukuranMatch = stock.ukuran_value?.toString().match(/(\d+)\s*x\s*(\d+)/i);
+      const panjang = ukuranMatch ? ukuranMatch[1] : "";
+      const lebar = ukuranMatch ? ukuranMatch[2] : "";
+      
+      setForm(prev => ({
+        ...prev,
+        pn_number: parsePnNumber(stock.pn_prefix),
+        nama_item: stock.nama_item || "",
+        ukuran_panjang: panjang,
+        ukuran_lebar: lebar,
+      }));
+    } else {
+      // Just update PN if no match found
+      setForm(prev => ({ ...prev, pn_number: pnValue }));
+    }
+  }, [mode, labelStocks]);
 
   // Auto-fill fields when label_masuk_ids changes for documen-lps (multiple select)
   const handleLabelMasukChange = useCallback((selectedIds) => {
@@ -452,6 +482,27 @@ export default function FormModal({ mode, initial, fields, categories, transaksi
                   <option value="superadmin">superadmin</option>
                   <option value="operator">operator</option>
                 </select>
+              ) : field === "pn_number" && (mode === "transaksi-masuk" || mode === "transaksi-keluar") && labelStocks && labelStocks.length > 0 ? (
+                <>
+                  <input
+                    list="pn-number-saran"
+                    type="text"
+                    value={form[field] ?? ""}
+                    onChange={(e) => handlePnChange(e.target.value)}
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-950/40 dark:text-slate-100"
+                    placeholder="Ketik atau pilih PN dari saran"
+                  />
+                  <datalist id="pn-number-saran">
+                    {labelStocks.map((stock) => (
+                      <option key={stock.id} value={parsePnNumber(stock.pn_prefix)}>
+                        {stock.nama_item} ({stock.ukuran_value}) - Stock: {stock.stock_total}
+                      </option>
+                    ))}
+                  </datalist>
+                  <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
+                    💡 Ketik PN untuk melihat saran. Data akan otomatis terisi.
+                  </p>
+                </>
               ) : field === "detail_notes" ? (
                 <textarea
                   value={form[field] || ""}

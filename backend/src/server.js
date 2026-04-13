@@ -380,6 +380,7 @@ app.post("/api/transactions/in", async (req, res) => {
     // Emit realtime update
     emitDataUpdate('transactions-in', { action: 'create' });
     emitDataUpdate('dashboard', { action: 'update' });
+    emitDataUpdate('label-stocks', { action: 'update' }); // Update stock display
     
     res.json({ message: "Label masuk berhasil ditambahkan" });
   } catch (error) {
@@ -401,6 +402,7 @@ app.put("/api/transactions/in/:id", async (req, res) => {
     // Emit realtime update
     emitDataUpdate('transactions-in', { action: 'update', id });
     emitDataUpdate('dashboard', { action: 'update' });
+    emitDataUpdate('label-stocks', { action: 'update' }); // Update stock display
     
     res.json({ message: "Label masuk berhasil diperbarui" });
   } catch (error) {
@@ -416,6 +418,7 @@ app.delete("/api/transactions/in/:id", async (req, res) => {
     // Emit realtime update
     emitDataUpdate('transactions-in', { action: 'delete', id });
     emitDataUpdate('dashboard', { action: 'update' });
+    emitDataUpdate('label-stocks', { action: 'update' }); // Update stock display
     
     res.json({ message: "Label masuk dihapus" });
   } catch (error) {
@@ -437,14 +440,35 @@ app.post("/api/transactions/out", async (req, res) => {
     const { tanggal, no_sj, pn_number, nama_item, ukuran_panjang, ukuran_lebar, jumlah_roll, customer } = req.body;
     const pn = buildPn(pn_number);
     const ukuran = `${ukuran_panjang}mm x ${ukuran_lebar}mm`;
+    const rollAmount = Number(jumlah_roll || 0);
+    
+    // Validasi: Cek stock tersedia sebelum insert
+    const [[stock]] = await pool.query(
+      "SELECT stock_total FROM label_stocks WHERE pn_prefix = ?",
+      [pn]
+    );
+    
+    if (!stock) {
+      return res.status(400).json({ 
+        message: `Stock untuk PN "${pn}" tidak ditemukan. Pastikan PN sudah terdaftar di Stock Label.` 
+      });
+    }
+    
+    if (stock.stock_total < rollAmount) {
+      return res.status(400).json({ 
+        message: `Stock tidak cukup! Tersedia: ${stock.stock_total} roll, Diminta: ${rollAmount} roll` 
+      });
+    }
+    
     await pool.query(
       "INSERT INTO label_keluar (tanggal, no_sj, pn, nama_item, ukuran, jumlah_roll, customer) VALUES (?, ?, ?, ?, ?, ?, ?)",
-      [tanggal, no_sj, pn, nama_item, ukuran, Number(jumlah_roll || 0), customer || null],
+      [tanggal, no_sj, pn, nama_item, ukuran, rollAmount, customer || null],
     );
     
     // Emit realtime update
     emitDataUpdate('transactions-out', { action: 'create' });
     emitDataUpdate('dashboard', { action: 'update' });
+    emitDataUpdate('label-stocks', { action: 'update' }); // Update stock display
     
     res.json({ message: "Label keluar berhasil ditambahkan" });
   } catch (error) {
@@ -458,14 +482,49 @@ app.put("/api/transactions/out/:id", async (req, res) => {
     const { tanggal, no_sj, pn_number, nama_item, ukuran_panjang, ukuran_lebar, jumlah_roll, customer } = req.body;
     const pn = buildPn(pn_number);
     const ukuran = `${ukuran_panjang}mm x ${ukuran_lebar}mm`;
+    const rollAmount = Number(jumlah_roll || 0);
+    
+    // Get old transaction data
+    const [[oldTrans]] = await pool.query(
+      "SELECT pn, jumlah_roll FROM label_keluar WHERE id=?",
+      [id]
+    );
+    
+    if (!oldTrans) {
+      return res.status(404).json({ message: "Transaksi tidak ditemukan" });
+    }
+    
+    // Validasi: Cek stock tersedia (hitung dengan mengembalikan stock lama dulu)
+    const [[stock]] = await pool.query(
+      "SELECT stock_total FROM label_stocks WHERE pn_prefix = ?",
+      [pn]
+    );
+    
+    if (!stock) {
+      return res.status(400).json({ 
+        message: `Stock untuk PN "${pn}" tidak ditemukan. Pastikan PN sudah terdaftar di Stock Label.` 
+      });
+    }
+    
+    // Hitung stock yang akan tersedia setelah update
+    // (stock sekarang + jumlah lama - jumlah baru)
+    const availableStock = stock.stock_total + oldTrans.jumlah_roll - rollAmount;
+    
+    if (availableStock < 0) {
+      return res.status(400).json({ 
+        message: `Stock tidak cukup! Tersedia: ${stock.stock_total + oldTrans.jumlah_roll} roll, Diminta: ${rollAmount} roll` 
+      });
+    }
+    
     await pool.query(
       "UPDATE label_keluar SET tanggal=?, no_sj=?, pn=?, nama_item=?, ukuran=?, jumlah_roll=?, customer=? WHERE id=?",
-      [tanggal, no_sj, pn, nama_item, ukuran, Number(jumlah_roll || 0), customer || null, id],
+      [tanggal, no_sj, pn, nama_item, ukuran, rollAmount, customer || null, id],
     );
     
     // Emit realtime update
     emitDataUpdate('transactions-out', { action: 'update', id });
     emitDataUpdate('dashboard', { action: 'update' });
+    emitDataUpdate('label-stocks', { action: 'update' }); // Update stock display
     
     res.json({ message: "Label keluar berhasil diperbarui" });
   } catch (error) {
@@ -481,6 +540,7 @@ app.delete("/api/transactions/out/:id", async (req, res) => {
     // Emit realtime update
     emitDataUpdate('transactions-out', { action: 'delete', id });
     emitDataUpdate('dashboard', { action: 'update' });
+    emitDataUpdate('label-stocks', { action: 'update' }); // Update stock display
     
     res.json({ message: "Label keluar dihapus" });
   } catch (error) {

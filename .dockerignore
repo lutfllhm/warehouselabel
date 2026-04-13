@@ -1,0 +1,49 @@
+# Node modules
+**/node_modules
+**/npm-debug.log
+
+# Git
+.git
+.gitignore
+.github
+
+# Environment files
+**/.env
+**/.env.local
+**/.env.*.local
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Build outputs
+**/dist
+**/build
+
+# Logs
+**/logs
+**/*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Documentation
+README.md
+**/README.md
+
+# Docker files
+docker-compose.yml
+Dockerfile*
+.dockerignore
+
+# Migrations (already in schema.sql)
+backend/migrations
+
+# Scripts
+backend/scripts
+
+# Format files
+format/

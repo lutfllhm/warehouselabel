@@ -1,9 +1,10 @@
 -- ============================================
 -- RBM Warehouse Label - Database Schema
 -- ============================================
--- Version: 2.0
--- Last Updated: 2026-04-10
+-- Version: 3.0
+-- Last Updated: 2026-04-13
 -- Description: Complete database schema untuk sistem warehouse label management
+--              Includes auto stock update triggers
 -- ============================================
 
 CREATE DATABASE IF NOT EXISTS warehouse_label;
@@ -226,8 +227,141 @@ INSERT INTO notifications (user_id, username, action_type, entity_type, entity_n
 ON DUPLICATE KEY UPDATE id=id;
 
 -- ============================================
+-- DATABASE TRIGGERS: AUTO STOCK UPDATE
+-- ============================================
+-- Deskripsi: Triggers untuk otomatis update stock_total di label_stocks
+--            saat ada transaksi masuk/keluar
+-- Version: 1.0
+-- Date: 2026-04-13
+-- ============================================
+
+DELIMITER $$
+
+-- ============================================
+-- TRIGGER: after_label_masuk_insert
+-- Otomatis menambah stock_total saat label masuk
+-- ============================================
+DROP TRIGGER IF EXISTS after_label_masuk_insert$$
+CREATE TRIGGER after_label_masuk_insert
+AFTER INSERT ON label_masuk
+FOR EACH ROW
+BEGIN
+  -- Update stock_total di label_stocks berdasarkan PN
+  UPDATE label_stocks 
+  SET stock_total = stock_total + NEW.jumlah_roll
+  WHERE pn_prefix = NEW.pn;
+END$$
+
+-- ============================================
+-- TRIGGER: after_label_masuk_update
+-- Otomatis adjust stock_total saat label masuk diupdate
+-- ============================================
+DROP TRIGGER IF EXISTS after_label_masuk_update$$
+CREATE TRIGGER after_label_masuk_update
+AFTER UPDATE ON label_masuk
+FOR EACH ROW
+BEGIN
+  -- Kembalikan stock lama (kurangi)
+  UPDATE label_stocks 
+  SET stock_total = stock_total - OLD.jumlah_roll
+  WHERE pn_prefix = OLD.pn;
+  
+  -- Tambahkan stock baru
+  UPDATE label_stocks 
+  SET stock_total = stock_total + NEW.jumlah_roll
+  WHERE pn_prefix = NEW.pn;
+END$$
+
+-- ============================================
+-- TRIGGER: after_label_masuk_delete
+-- Otomatis mengurangi stock_total saat label masuk dihapus
+-- ============================================
+DROP TRIGGER IF EXISTS after_label_masuk_delete$$
+CREATE TRIGGER after_label_masuk_delete
+AFTER DELETE ON label_masuk
+FOR EACH ROW
+BEGIN
+  -- Kurangi stock_total karena transaksi masuk dibatalkan
+  UPDATE label_stocks 
+  SET stock_total = stock_total - OLD.jumlah_roll
+  WHERE pn_prefix = OLD.pn;
+END$$
+
+-- ============================================
+-- TRIGGER: after_label_keluar_insert
+-- Otomatis mengurangi stock_total saat label keluar
+-- ============================================
+DROP TRIGGER IF EXISTS after_label_keluar_insert$$
+CREATE TRIGGER after_label_keluar_insert
+AFTER INSERT ON label_keluar
+FOR EACH ROW
+BEGIN
+  -- Update stock_total di label_stocks berdasarkan PN
+  UPDATE label_stocks 
+  SET stock_total = stock_total - NEW.jumlah_roll
+  WHERE pn_prefix = NEW.pn;
+END$$
+
+-- ============================================
+-- TRIGGER: after_label_keluar_update
+-- Otomatis adjust stock_total saat label keluar diupdate
+-- ============================================
+DROP TRIGGER IF EXISTS after_label_keluar_update$$
+CREATE TRIGGER after_label_keluar_update
+AFTER UPDATE ON label_keluar
+FOR EACH ROW
+BEGIN
+  -- Kembalikan stock lama (tambah kembali)
+  UPDATE label_stocks 
+  SET stock_total = stock_total + OLD.jumlah_roll
+  WHERE pn_prefix = OLD.pn;
+  
+  -- Kurangi stock baru
+  UPDATE label_stocks 
+  SET stock_total = stock_total - NEW.jumlah_roll
+  WHERE pn_prefix = NEW.pn;
+END$$
+
+-- ============================================
+-- TRIGGER: after_label_keluar_delete
+-- Otomatis menambah stock_total saat label keluar dihapus
+-- ============================================
+DROP TRIGGER IF EXISTS after_label_keluar_delete$$
+CREATE TRIGGER after_label_keluar_delete
+AFTER DELETE ON label_keluar
+FOR EACH ROW
+BEGIN
+  -- Tambah stock_total karena transaksi keluar dibatalkan
+  UPDATE label_stocks 
+  SET stock_total = stock_total + OLD.jumlah_roll
+  WHERE pn_prefix = OLD.pn;
+END$$
+
+-- ============================================
+-- TRIGGER: before_label_stocks_update
+-- Update status otomatis saat stock_total berubah
+-- ============================================
+DROP TRIGGER IF EXISTS before_label_stocks_update$$
+CREATE TRIGGER before_label_stocks_update
+BEFORE UPDATE ON label_stocks
+FOR EACH ROW
+BEGIN
+  -- Auto update status berdasarkan stock_total
+  IF NEW.stock_total <= 20 THEN
+    SET NEW.status = 'Stock Menipis';
+  ELSEIF NEW.stock_total <= 50 THEN
+    SET NEW.status = 'Perlu Monitoring';
+  ELSE
+    SET NEW.status = 'Aman';
+  END IF;
+END$$
+
+DELIMITER ;
+
+-- ============================================
 -- SCHEMA INFORMATION
 -- ============================================
 SELECT 'Database schema created successfully!' AS status;
 SELECT 'Default user: superadmin / admin123' AS info;
 SELECT COUNT(*) AS total_tables FROM information_schema.tables WHERE table_schema = 'warehouse_label';
+SELECT COUNT(*) AS total_triggers FROM information_schema.triggers WHERE trigger_schema = 'warehouse_label';

@@ -2,6 +2,7 @@
 .env
 .env.local
 .env.*.local
+.env.production
 
 # Logs
 logs
@@ -34,3 +35,7 @@ build/
 
 # OS
 Thumbs.db
+
+# Docker & Deployment
+backups/
+*.sql

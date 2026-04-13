@@ -5,7 +5,7 @@ import LpsDetailModal from "../../components/admin/LpsDetailModal.jsx";
 import { useAdminOutlet } from "./useAdminOutlet.js";
 
 export default function DocumenLpsPage() {
-  const { dataMap, openForm } = useAdminOutlet();
+  const { dataMap, openForm, doDelete } = useAdminOutlet();
   const [detailDoc, setDetailDoc] = useState(null);
   const navigate = useNavigate();
 
@@ -20,6 +20,7 @@ export default function DocumenLpsPage() {
         searchPlaceholder="Cari Tanggal / No LPS…"
         onOpenForm={(row) => openForm("documen-lps", row)}
         onOpenDetail={(row) => setDetailDoc(row)}
+        onDelete={(delId) => doDelete("/documents/lps", delId)}
         onPrint={(row) => {
           navigate("/app/lps-export", { state: { lpsDoc: row } });
         }}

@@ -5,7 +5,7 @@ import SjDetailModal from "../../components/admin/SjDetailModal.jsx";
 import { useAdminOutlet } from "./useAdminOutlet.js";
 
 export default function DocumenSjPage() {
-  const { dataMap, openForm, safeDateKey } = useAdminOutlet();
+  const { dataMap, openForm, doDelete, safeDateKey } = useAdminOutlet();
   const [detailDoc, setDetailDoc] = useState(null);
   const navigate = useNavigate();
 
@@ -20,6 +20,7 @@ export default function DocumenSjPage() {
         searchPlaceholder="Cari No SJ / Customer…"
         onOpenForm={(row) => openForm("documen-sj", row)}
         onOpenDetail={(row) => setDetailDoc(row)}
+        onDelete={(delId) => doDelete("/documents/sj", delId)}
         onPrint={(row) => {
           navigate("/app/sj-export", { state: { sjDoc: row } });
         }}
