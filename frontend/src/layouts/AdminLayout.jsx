@@ -83,7 +83,9 @@ export default function AdminLayout() {
   const loadAll = useCallback(async () => {
     setLoadError("");
     setIsLoading(true);
-    const [s, material, label, kategori, transaksiIn, transaksiOut, lps, sj, users, backups, settings] = await Promise.all([
+    
+    // Prepare API calls based on user role
+    const apiCalls = [
       api.get("/dashboard/summary"),
       api.get("/material-stocks"),
       api.get("/label-stocks"),
@@ -92,10 +94,37 @@ export default function AdminLayout() {
       api.get("/transactions/out"),
       api.get("/documents/lps"),
       api.get("/documents/sj"),
-      api.get("/users"),
-      api.get("/backups"),
-      api.get("/settings"),
-    ]);
+    ];
+    
+    // Only superadmin can access users and backups
+    if (user.role === "superadmin") {
+      apiCalls.push(api.get("/users"));
+      apiCalls.push(api.get("/backups"));
+    }
+    
+    apiCalls.push(api.get("/settings"));
+
+    const results = await Promise.all(apiCalls);
+    
+    let resultIndex = 0;
+    const s = results[resultIndex++];
+    const material = results[resultIndex++];
+    const label = results[resultIndex++];
+    const kategori = results[resultIndex++];
+    const transaksiIn = results[resultIndex++];
+    const transaksiOut = results[resultIndex++];
+    const lps = results[resultIndex++];
+    const sj = results[resultIndex++];
+    
+    let users = { data: [] };
+    let backups = { data: [] };
+    
+    if (user.role === "superadmin") {
+      users = results[resultIndex++];
+      backups = results[resultIndex++];
+    }
+    
+    const settings = results[resultIndex++];
 
     setSummary(s.data);
     setDataMap({
@@ -120,7 +149,7 @@ export default function AdminLayout() {
       }),
     );
     setIsLoading(false);
-  }, []);
+  }, [user.role]);
 
   useEffect(() => {
     const id = setTimeout(() => {
@@ -339,6 +368,11 @@ export default function AdminLayout() {
     return <Navigate to={`/app/${legacySectionMap[selectedKey]}`} replace />;
   }
 
+  // Proteksi halaman users dan backup - hanya superadmin
+  if ((selectedKey === "users" || selectedKey === "backup") && user.role !== "superadmin") {
+    return <Navigate to="/app/dashboard" replace />;
+  }
+
   return (
     <div className="flex min-h-screen bg-slate-950 text-slate-100">
       <AdminSidebar
@@ -351,6 +385,7 @@ export default function AdminLayout() {
           localStorage.clear();
           navigate("/login");
         }}
+        userRole={user.role}
       />
 
       <main className="min-w-0 flex-1 bg-slate-950">

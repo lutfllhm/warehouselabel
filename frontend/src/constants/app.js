@@ -28,10 +28,18 @@ export const menus = [
     ],
   },
   { key: "report", label: "Report", icon: LineChart },
-  { key: "users", label: "Manajemen User", icon: Users },
-  { key: "backup", label: "Backup Database", icon: Database },
+  { key: "users", label: "Manajemen User", icon: Users, requireSuperAdmin: true },
+  { key: "backup", label: "Backup Database", icon: Database, requireSuperAdmin: true },
   { key: "setting", label: "Setting", icon: Settings },
 ];
+
+// Filter menu berdasarkan role user
+export function getFilteredMenus(userRole) {
+  if (userRole === "superadmin") {
+    return menus;
+  }
+  return menus.filter(menu => !menu.requireSuperAdmin);
+}
 
 const flatMenuItems = menus.flatMap((m) => (m.children ? m.children : [m]));
 export const dashboardSectionKeys = flatMenuItems.map((m) => m.key).filter(Boolean);

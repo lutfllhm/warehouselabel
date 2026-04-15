@@ -76,6 +76,13 @@ function authenticate(req, res, next) {
   }
 }
 
+function requireSuperAdmin(req, res, next) {
+  if (req.user?.role !== "superadmin") {
+    return res.status(403).json({ message: "Akses ditolak. Hanya superadmin yang dapat mengakses fitur ini." });
+  }
+  return next();
+}
+
 app.use((req, res, next) => {
   if (!req.path.startsWith("/api")) return next();
   if (req.path === "/api/auth/login" || req.path === "/api/health") return next();
@@ -870,7 +877,7 @@ app.delete("/api/documents/sj/:id", async (req, res) => {
   }
 });
 
-app.get("/api/users", async (_req, res) => {
+app.get("/api/users", requireSuperAdmin, async (_req, res) => {
   try {
     const [rows] = await pool.query("SELECT id, full_name, username, role, created_at FROM users ORDER BY id DESC");
     res.json(rows);
@@ -879,7 +886,7 @@ app.get("/api/users", async (_req, res) => {
   }
 });
 
-app.post("/api/users", async (req, res) => {
+app.post("/api/users", requireSuperAdmin, async (req, res) => {
   try {
     const { full_name, username, password, role } = req.body;
     const passwordHash = await bcrypt.hash(password, 10);
@@ -890,7 +897,7 @@ app.post("/api/users", async (req, res) => {
   }
 });
 
-app.put("/api/users/:id", async (req, res) => {
+app.put("/api/users/:id", requireSuperAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const { full_name, username, role, password } = req.body;
@@ -906,7 +913,7 @@ app.put("/api/users/:id", async (req, res) => {
   }
 });
 
-app.delete("/api/users/:id", async (req, res) => {
+app.delete("/api/users/:id", requireSuperAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     await pool.query("DELETE FROM users WHERE id=?", [id]);
@@ -938,7 +945,7 @@ app.post("/api/settings", async (req, res) => {
   }
 });
 
-app.get("/api/backups", async (_req, res) => {
+app.get("/api/backups", requireSuperAdmin, async (_req, res) => {
   try {
     const [rows] = await pool.query("SELECT id, backup_name, note, created_by, created_at FROM backup_logs ORDER BY id DESC");
     res.json(rows);
@@ -947,7 +954,7 @@ app.get("/api/backups", async (_req, res) => {
   }
 });
 
-app.post("/api/backups", async (req, res) => {
+app.post("/api/backups", requireSuperAdmin, async (req, res) => {
   try {
     const { note, created_by } = req.body;
     const backupName = `backup_${Date.now()}.sql`;

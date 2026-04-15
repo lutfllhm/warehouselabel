@@ -2,7 +2,7 @@ import { AnimatePresence, motion as Motion } from "framer-motion";
 import { ChevronDown, ChevronRight, LogOut, PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import BrandLogo from "../BrandLogo.jsx";
-import { menus } from "../../constants/app.js";
+import { getFilteredMenus } from "../../constants/app.js";
 import { useEffect, useMemo, useState } from "react";
 
 function getGroupKey(label) {
@@ -20,7 +20,9 @@ export default function AdminSidebar({
   collapsed,
   onToggleCollapsed,
   onLogout,
+  userRole,
 }) {
+  const menus = useMemo(() => getFilteredMenus(userRole), [userRole]);
   const [expandedMenus, setExpandedMenus] = useState(() => ({ stock: true, transaksi: false, documen: false }));
 
   useEffect(() => {
@@ -241,7 +243,7 @@ export default function AdminSidebar({
         </div>
       </div>
     ),
-    [collapsed, expandedMenus, onLogout, onToggleCollapsed, onMobileClose, mobileOpen, selectedKey],
+    [collapsed, expandedMenus, onLogout, onToggleCollapsed, onMobileClose, mobileOpen, selectedKey, menus],
   );
 
   return (
