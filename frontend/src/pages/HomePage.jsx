@@ -119,7 +119,7 @@ export default function HomePage() {
             </Link>
 
             {/* Navigation */}
-            <nav className="hidden md:flex items-center gap-6">
+            <nav className="flex items-center gap-6">
               <a href="#features" className="text-sm font-medium text-white/90 transition-colors hover:text-white whitespace-nowrap">
                 Fitur
               </a>
@@ -130,14 +130,6 @@ export default function HomePage() {
                 Galeri
               </a>
             </nav>
-
-            {/* Login Button */}
-            <Link
-              to="/login"
-              className="flex-shrink-0 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl whitespace-nowrap"
-            >
-              Login
-            </Link>
           </div>
         </div>
       </header>
