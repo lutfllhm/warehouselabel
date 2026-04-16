@@ -111,22 +111,22 @@ export default function HomePage() {
         }`}
       >
         <div className="mx-auto max-w-7xl px-6">
-          <div className="flex h-16 items-center justify-between">
+          <div className="flex h-16 items-center justify-between gap-4">
             {/* Logo */}
-            <div className="flex items-center gap-3">
+            <Link to="/" className="flex items-center gap-3 flex-shrink-0">
               <BrandLogo className="h-8 w-8" imgClassName="object-contain" />
-              <span className="text-lg font-bold text-white">RBM Warehouse Label</span>
-            </div>
+              <span className="hidden text-lg font-bold text-white sm:inline">RBM Warehouse Label</span>
+            </Link>
 
             {/* Navigation */}
-            <nav className="hidden items-center gap-6 md:flex">
-              <a href="#features" className="text-sm font-medium text-white/90 transition-colors hover:text-white">
+            <nav className="flex items-center gap-6">
+              <a href="#features" className="text-sm font-medium text-white/90 transition-colors hover:text-white whitespace-nowrap">
                 Fitur
               </a>
-              <a href="#about" className="text-sm font-medium text-white/90 transition-colors hover:text-white">
+              <a href="#about" className="text-sm font-medium text-white/90 transition-colors hover:text-white whitespace-nowrap">
                 Tentang
               </a>
-              <a href="#gallery" className="text-sm font-medium text-white/90 transition-colors hover:text-white">
+              <a href="#gallery" className="text-sm font-medium text-white/90 transition-colors hover:text-white whitespace-nowrap">
                 Galeri
               </a>
             </nav>
@@ -134,7 +134,7 @@ export default function HomePage() {
             {/* Login Button */}
             <Link
               to="/login"
-              className="rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+              className="flex-shrink-0 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl whitespace-nowrap"
             >
               Login
             </Link>
