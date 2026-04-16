@@ -107,8 +107,24 @@ export default function HomePage() {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-transparent">
+      {/* Animated Background Particles */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute h-2 w-2 rounded-full bg-white/20 animate-[float_6s_ease-in-out_infinite]"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 5}s`,
+              animationDuration: `${5 + Math.random() * 10}s`,
+            }}
+          />
+        ))}
+      </div>
+
       {/* Header Navigation */}
-      <header className="fixed left-0 right-0 top-0 z-50 bg-slate-900/40 backdrop-blur-lg">
+      <header className="fixed left-0 right-0 top-0 z-50 bg-slate-900/40 backdrop-blur-lg animate-[fadeInUp_0.6s_ease-out]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
@@ -191,12 +207,27 @@ export default function HomePage() {
 
       {/* Hero Section with Enhanced Decorations */}
       <div 
-        className="pointer-events-none absolute left-0 top-0 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-white/20 via-white/10 to-transparent blur-3xl transition-transform duration-1000"
-        style={{ transform: `translate(-50%, -50%) translateY(${scrollY * 0.3}px)` }}
+        className="pointer-events-none absolute left-0 top-0 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-white/20 via-white/10 to-transparent blur-3xl transition-transform duration-1000 animate-pulse"
+        style={{ 
+          transform: `translate(-50%, -50%) translateY(${scrollY * 0.3}px)`,
+          animationDuration: '4s'
+        }}
       />
       <div 
-        className="pointer-events-none absolute right-0 top-20 h-[500px] w-[500px] translate-x-1/3 rounded-full bg-gradient-to-bl from-white/20 via-white/10 to-transparent blur-3xl transition-transform duration-1000"
-        style={{ transform: `translate(33%, 0) translateY(${scrollY * 0.2}px)` }}
+        className="pointer-events-none absolute right-0 top-20 h-[500px] w-[500px] translate-x-1/3 rounded-full bg-gradient-to-bl from-white/20 via-white/10 to-transparent blur-3xl transition-transform duration-1000 animate-pulse"
+        style={{ 
+          transform: `translate(33%, 0) translateY(${scrollY * 0.2}px)`,
+          animationDuration: '5s'
+        }}
+      />
+      
+      {/* Additional Gradient Orbs */}
+      <div 
+        className="pointer-events-none absolute left-1/4 top-1/2 h-[400px] w-[400px] rounded-full bg-gradient-to-tr from-indigo-500/10 via-purple-500/10 to-transparent blur-3xl animate-[float_8s_ease-in-out_infinite]"
+      />
+      <div 
+        className="pointer-events-none absolute right-1/4 bottom-1/4 h-[350px] w-[350px] rounded-full bg-gradient-to-bl from-sky-500/10 via-indigo-500/10 to-transparent blur-3xl animate-[float_10s_ease-in-out_infinite]"
+        style={{ animationDelay: '2s' }}
       />
       
       <section className="relative mx-auto max-w-7xl px-6 pt-20 pb-6 lg:pt-20 lg:pb-8">{/* Reduced top padding for tight spacing */}
@@ -218,16 +249,19 @@ export default function HomePage() {
             <div className="flex flex-wrap gap-4 animate-[fadeInUp_1s_ease-out_0.4s_both]">
               <Link
                 to="/login"
-                className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-indigo-500/30 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-indigo-500/40 dark:shadow-indigo-500/20"
+                className="group relative inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-indigo-500/30 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-indigo-500/50 dark:shadow-indigo-500/20 overflow-hidden"
               >
-                Akses Sistem
-                <ArrowRight size={18} className="transition-transform duration-300 group-hover:translate-x-1" />
+                <span className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></span>
+                <span className="relative z-10">Akses Sistem</span>
+                <ArrowRight size={18} className="relative z-10 transition-transform duration-300 group-hover:translate-x-1" />
+                <span className="absolute inset-0 -z-10 bg-gradient-to-r from-indigo-400 to-purple-400 blur-xl opacity-0 transition-opacity duration-300 group-hover:opacity-50"></span>
               </Link>
               <Link
                 to="/app/dashboard"
-                className="inline-flex items-center gap-2 rounded-xl border-2 border-white/40 bg-white/20 px-6 py-3.5 text-base font-semibold text-white shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-white/60 hover:bg-white/30"
+                className="group relative inline-flex items-center gap-2 rounded-xl border-2 border-white/40 bg-white/20 px-6 py-3.5 text-base font-semibold text-white shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-white/60 hover:bg-white/30 overflow-hidden"
               >
-                Lihat Dashboard
+                <span className="absolute inset-0 bg-white/10 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></span>
+                <span className="relative z-10">Lihat Dashboard</span>
               </Link>
             </div>
 
@@ -236,22 +270,31 @@ export default function HomePage() {
               {stats.map((stat, idx) => (
                 <div 
                   key={idx} 
-                  className="text-center transform transition-all duration-300 hover:scale-110"
+                  className="group text-center transform transition-all duration-500 hover:scale-110 cursor-pointer"
                   style={{ animationDelay: `${0.8 + idx * 0.1}s` }}
                 >
-                  <div className="text-2xl font-bold text-white drop-shadow-md">{stat.value}</div>
-                  <div className="text-sm text-white/80">{stat.label}</div>
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-lg blur-xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
+                    <div className="relative bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/10 transition-all duration-500 group-hover:border-white/30 group-hover:bg-white/10">
+                      <div className="text-2xl font-bold text-white drop-shadow-md transition-all duration-300 group-hover:scale-110 group-hover:text-indigo-200">{stat.value}</div>
+                      <div className="text-sm text-white/80 transition-colors duration-300 group-hover:text-white">{stat.label}</div>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Right Content - Label Printer Animation */}
-          <div className="relative animate-[fadeInRight_1s_ease-out_0.4s_both]">
-            <div className="absolute -inset-4 rounded-3xl bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-sky-500/20 blur-2xl animate-pulse"></div>
-            <div className="relative transform transition-transform duration-500 hover:scale-105">
+          <div className="relative animate-[fadeInRight_1s_ease-out_0.4s_both] group">
+            <div className="absolute -inset-4 rounded-3xl bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-sky-500/20 blur-2xl animate-pulse opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="absolute -inset-8 rounded-3xl bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-sky-500/10 blur-3xl animate-[glow_3s_ease-in-out_infinite]"></div>
+            <div className="relative transform transition-all duration-700 hover:scale-105 hover:rotate-1">
               <LabelPrinterAnimation />
             </div>
+            {/* Floating decorative elements */}
+            <div className="absolute -top-4 -right-4 h-20 w-20 rounded-full bg-indigo-500/20 blur-2xl animate-[float_6s_ease-in-out_infinite]"></div>
+            <div className="absolute -bottom-4 -left-4 h-24 w-24 rounded-full bg-purple-500/20 blur-2xl animate-[float_8s_ease-in-out_infinite]" style={{ animationDelay: '1s' }}></div>
           </div>
         </div>
       </section>
@@ -306,9 +349,9 @@ export default function HomePage() {
       {/* Company Profile Section */}
       <section id="about" className="relative border-t border-white/20 bg-transparent py-16 backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="grid items-start gap-8 rounded-3xl border-2 border-white/30 bg-white/10 p-8 shadow-2xl backdrop-blur-md lg:grid-cols-3 lg:p-12">
-            <div className="lg:col-span-1">
-              <div className="inline-flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
+          <div className="grid items-start gap-8 rounded-3xl border-2 border-white/30 bg-white/10 p-8 shadow-2xl backdrop-blur-md lg:grid-cols-3 lg:p-12 animate-[slideInFromBottom_0.8s_ease-out] hover:shadow-indigo-500/20 transition-shadow duration-500">
+            <div className="lg:col-span-1 animate-[fadeInLeft_0.8s_ease-out_0.2s_both]">
+              <div className="inline-flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700 animate-[scaleIn_0.6s_ease-out_0.4s_both]">
                 Tentang Sistem
               </div>
               <h2 className="mt-4 text-3xl font-bold text-white">RBM Warehouse Label</h2>
@@ -319,44 +362,44 @@ export default function HomePage() {
 
             <div className="lg:col-span-2">
               <div className="grid gap-6 sm:grid-cols-2">
-                <div className="rounded-2xl border border-white/30 bg-white/10 p-6 shadow-sm backdrop-blur-sm">
-                  <h3 className="text-lg font-semibold text-white">Yang Bisa Dikerjakan</h3>
+                <div className="group rounded-2xl border border-white/30 bg-white/10 p-6 shadow-sm backdrop-blur-sm transition-all duration-500 hover:scale-105 hover:border-white/50 hover:bg-white/15 animate-[fadeInUp_0.8s_ease-out_0.4s_both]">
+                  <h3 className="text-lg font-semibold text-white group-hover:text-indigo-200 transition-colors duration-300">Yang Bisa Dikerjakan</h3>
                   <ul className="mt-4 space-y-3 text-sm text-white/90">
-                    <li className="flex items-start gap-2">
+                    <li className="flex items-start gap-2 transform transition-transform duration-300 hover:translate-x-2">
                       <CheckCircle2 size={16} className="mt-0.5 flex-shrink-0 text-emerald-500" />
                       Cek stok material & label per roll
                     </li>
-                    <li className="flex items-start gap-2">
+                    <li className="flex items-start gap-2 transform transition-transform duration-300 hover:translate-x-2">
                       <CheckCircle2 size={16} className="mt-0.5 flex-shrink-0 text-emerald-500" />
                       Catat transaksi masuk/keluar otomatis
                     </li>
-                    <li className="flex items-start gap-2">
+                    <li className="flex items-start gap-2 transform transition-transform duration-300 hover:translate-x-2">
                       <CheckCircle2 size={16} className="mt-0.5 flex-shrink-0 text-emerald-500" />
                       Simpan dokumen LPS/SJ digital
                     </li>
-                    <li className="flex items-start gap-2">
+                    <li className="flex items-start gap-2 transform transition-transform duration-300 hover:translate-x-2">
                       <CheckCircle2 size={16} className="mt-0.5 flex-shrink-0 text-emerald-500" />
                       Backup data & histori lengkap
                     </li>
                   </ul>
                 </div>
 
-                <div className="rounded-2xl border border-white/30 bg-white/10 p-6 shadow-sm backdrop-blur-sm">
-                  <h3 className="text-lg font-semibold text-white">Kenapa Pakai Ini?</h3>
+                <div className="group rounded-2xl border border-white/30 bg-white/10 p-6 shadow-sm backdrop-blur-sm transition-all duration-500 hover:scale-105 hover:border-white/50 hover:bg-white/15 animate-[fadeInUp_0.8s_ease-out_0.6s_both]">
+                  <h3 className="text-lg font-semibold text-white group-hover:text-indigo-200 transition-colors duration-300">Kenapa Pakai Ini?</h3>
                   <ul className="mt-4 space-y-3 text-sm text-white/90">
-                    <li className="flex items-start gap-2">
+                    <li className="flex items-start gap-2 transform transition-transform duration-300 hover:translate-x-2">
                       <CheckCircle2 size={16} className="mt-0.5 flex-shrink-0 text-indigo-500" />
                       Data akurat, bisa dipercaya
                     </li>
-                    <li className="flex items-start gap-2">
+                    <li className="flex items-start gap-2 transform transition-transform duration-300 hover:translate-x-2">
                       <CheckCircle2 size={16} className="mt-0.5 flex-shrink-0 text-indigo-500" />
                       Tampilannya simpel, gampang dipake
                     </li>
-                    <li className="flex items-start gap-2">
+                    <li className="flex items-start gap-2 transform transition-transform duration-300 hover:translate-x-2">
                       <CheckCircle2 size={16} className="mt-0.5 flex-shrink-0 text-indigo-500" />
                       Format data rapi & konsisten
                     </li>
-                    <li className="flex items-start gap-2">
+                    <li className="flex items-start gap-2 transform transition-transform duration-300 hover:translate-x-2">
                       <CheckCircle2 size={16} className="mt-0.5 flex-shrink-0 text-indigo-500" />
                       Aman, tiap user punya akses sendiri
                     </li>
@@ -364,17 +407,17 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="mt-6 grid gap-4 sm:grid-cols-3">
-                <div className="rounded-xl border border-white/30 bg-white/10 p-4 shadow-sm backdrop-blur-sm">
-                  <p className="text-xs font-semibold text-white/70">Alamat</p>
+              <div className="mt-6 grid gap-4 sm:grid-cols-3 animate-[fadeInUp_0.8s_ease-out_0.8s_both]">
+                <div className="group rounded-xl border border-white/30 bg-white/10 p-4 shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-indigo-400/50 hover:bg-white/15">
+                  <p className="text-xs font-semibold text-white/70 group-hover:text-indigo-300 transition-colors">Alamat</p>
                   <p className="mt-1 text-sm text-white">—</p>
                 </div>
-                <div className="rounded-xl border border-white/30 bg-white/10 p-4 shadow-sm backdrop-blur-sm">
-                  <p className="text-xs font-semibold text-white/70">Kontak</p>
+                <div className="group rounded-xl border border-white/30 bg-white/10 p-4 shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-indigo-400/50 hover:bg-white/15">
+                  <p className="text-xs font-semibold text-white/70 group-hover:text-indigo-300 transition-colors">Kontak</p>
                   <p className="mt-1 text-sm text-white">—</p>
                 </div>
-                <div className="rounded-xl border border-white/30 bg-white/10 p-4 shadow-sm backdrop-blur-sm">
-                  <p className="text-xs font-semibold text-white/70">Jam Operasional</p>
+                <div className="group rounded-xl border border-white/30 bg-white/10 p-4 shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-indigo-400/50 hover:bg-white/15">
+                  <p className="text-xs font-semibold text-white/70 group-hover:text-indigo-300 transition-colors">Jam Operasional</p>
                   <p className="mt-1 text-sm text-white">—</p>
                 </div>
               </div>
