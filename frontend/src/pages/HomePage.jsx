@@ -113,13 +113,13 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="flex h-16 items-center justify-between gap-4">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-3 flex-shrink-0">
-              <BrandLogo className="h-8 w-8" imgClassName="object-contain" />
-              <span className="hidden text-lg font-bold text-white sm:inline">RBM Warehouse Label</span>
+            <Link to="/" className="flex items-center gap-3 flex-shrink-0 min-w-0">
+              <BrandLogo className="h-8 w-8 flex-shrink-0" imgClassName="object-contain" />
+              <span className="text-lg font-bold text-white whitespace-nowrap">RBM Warehouse Label</span>
             </Link>
 
             {/* Navigation */}
-            <nav className="flex items-center gap-6">
+            <nav className="hidden md:flex items-center gap-6">
               <a href="#features" className="text-sm font-medium text-white/90 transition-colors hover:text-white whitespace-nowrap">
                 Fitur
               </a>
