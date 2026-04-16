@@ -7,7 +7,17 @@ import { useState, useEffect } from "react";
 
 export default function HomePage() {
   usePageTitle("Beranda");
+  const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleNavClick = () => {
     setIsMobileMenuOpen(false);
@@ -98,92 +108,69 @@ export default function HomePage() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-transparent">
       {/* Header Navigation */}
-      <header className="fixed left-0 right-0 top-0 z-50 border-b border-white/10 bg-slate-900/60 backdrop-blur-md">
-        <div className="mx-auto max-w-7xl">
-          <div className="flex h-16 items-center justify-between px-4 lg:px-6">
-            {/* Logo - Left Side */}
-            <Link to="/" className="flex items-center gap-2.5 flex-shrink-0 min-w-0">
-              <BrandLogo className="h-7 w-7 flex-shrink-0" imgClassName="object-contain" />
-              <span className="hidden sm:inline text-base font-semibold text-white tracking-tight">
-                RBM Warehouse Label
-              </span>
-              <span className="sm:hidden text-base font-semibold text-white tracking-tight">
-                RBM
-              </span>
+      <header
+        className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
+          isScrolled
+            ? "border-b border-white/20 bg-slate-900/95 shadow-lg backdrop-blur-md"
+            : "bg-transparent"
+        }`}
+      >
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="flex h-16 items-center justify-between gap-4">
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-3 flex-shrink-0 min-w-0">
+              <BrandLogo className="h-8 w-8 flex-shrink-0" imgClassName="object-contain" />
+              <span className="text-lg font-bold text-white whitespace-nowrap">RBM Warehouse Label</span>
             </Link>
 
-            {/* Navigation - Right Side (Desktop) */}
-            <div className="hidden md:flex items-center gap-1">
-              <a 
-                href="#features" 
-                className="px-4 py-2 text-sm font-medium text-slate-200 hover:text-white transition-colors"
-              >
+            {/* Navigation - Desktop */}
+            <nav className="hidden md:flex items-center gap-6">
+              <a href="#features" className="text-sm font-medium text-white/90 transition-colors hover:text-white whitespace-nowrap">
                 Fitur
               </a>
-              <a 
-                href="#about" 
-                className="px-4 py-2 text-sm font-medium text-slate-200 hover:text-white transition-colors"
-              >
+              <a href="#about" className="text-sm font-medium text-white/90 transition-colors hover:text-white whitespace-nowrap">
                 Tentang
               </a>
-              <a 
-                href="#gallery" 
-                className="px-4 py-2 text-sm font-medium text-slate-200 hover:text-white transition-colors"
-              >
+              <a href="#gallery" className="text-sm font-medium text-white/90 transition-colors hover:text-white whitespace-nowrap">
                 Galeri
               </a>
-              <Link 
-                to="/login" 
-                className="ml-2 px-6 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-all shadow-lg shadow-indigo-500/30"
-              >
-                Login
-              </Link>
-            </div>
+            </nav>
 
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden flex items-center justify-center w-10 h-10 text-slate-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+              className="md:hidden p-2 text-white hover:bg-white/10 rounded-lg transition-colors"
               aria-label="Toggle menu"
             >
-              {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
 
-          {/* Mobile Navigation Dropdown */}
+          {/* Mobile Navigation */}
           {isMobileMenuOpen && (
-            <div className="md:hidden border-t border-white/10 bg-slate-900/95 backdrop-blur-md">
-              <nav className="px-4 py-4 space-y-1">
+            <div className="md:hidden border-t border-white/20 py-4 animate-[fadeIn_0.2s_ease-out]">
+              <nav className="flex flex-col gap-3">
                 <a 
                   href="#features" 
                   onClick={handleNavClick}
-                  className="block px-4 py-2.5 text-sm font-medium text-slate-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                  className="text-sm font-medium text-white/90 hover:text-white transition-colors py-2 px-4 hover:bg-white/10 rounded-lg"
                 >
                   Fitur
                 </a>
                 <a 
                   href="#about" 
                   onClick={handleNavClick}
-                  className="block px-4 py-2.5 text-sm font-medium text-slate-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                  className="text-sm font-medium text-white/90 hover:text-white transition-colors py-2 px-4 hover:bg-white/10 rounded-lg"
                 >
                   Tentang
                 </a>
                 <a 
                   href="#gallery" 
                   onClick={handleNavClick}
-                  className="block px-4 py-2.5 text-sm font-medium text-slate-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                  className="text-sm font-medium text-white/90 hover:text-white transition-colors py-2 px-4 hover:bg-white/10 rounded-lg"
                 >
                   Galeri
                 </a>
-                <div className="pt-2">
-                  <Link 
-                    to="/login" 
-                    onClick={handleNavClick}
-                    className="block px-4 py-2.5 text-sm font-semibold text-center text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors shadow-lg shadow-indigo-500/30"
-                  >
-                    Login
-                  </Link>
-                </div>
               </nav>
             </div>
           )}
