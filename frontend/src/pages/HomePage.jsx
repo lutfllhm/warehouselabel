@@ -183,7 +183,7 @@ export default function HomePage() {
       <div className="pointer-events-none absolute left-0 top-0 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-white/20 via-white/10 to-transparent blur-3xl" />
       <div className="pointer-events-none absolute right-0 top-20 h-[500px] w-[500px] translate-x-1/3 rounded-full bg-gradient-to-bl from-white/20 via-white/10 to-transparent blur-3xl" />
       
-      <section className="relative mx-auto max-w-7xl px-6 py-8 pt-20 lg:py-12 lg:pt-24">{/* Reduced padding top */}
+      <section className="relative mx-auto max-w-7xl px-6 py-6 pt-16 lg:py-8 lg:pt-20">{/* Reduced padding top significantly */}
         <div className="grid items-center gap-12 lg:grid-cols-2">
           {/* Left Content */}
           <div className="space-y-6 animate-[fadeIn_0.6s_ease-out]">
