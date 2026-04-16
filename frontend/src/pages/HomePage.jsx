@@ -3,7 +3,7 @@ import { BarChart3, FileText, Lock, Package, TrendingUp, Users, CheckCircle2, Ar
 import BrandLogo from "../components/BrandLogo.jsx";
 import LabelPrinterAnimation from "../components/ui/LabelPrinterAnimation.jsx";
 import { usePageTitle } from "../hooks/usePageTitle.js";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export default function HomePage() {
   usePageTitle("Beranda");
