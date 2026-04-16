@@ -8,6 +8,16 @@ import { useState, useEffect } from "react";
 export default function HomePage() {
   usePageTitle("Beranda");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleNavClick = () => {
     setIsMobileMenuOpen(false);
@@ -98,7 +108,13 @@ export default function HomePage() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-transparent">
       {/* Header Navigation */}
-      <header className="fixed left-0 right-0 top-0 z-50 border-b border-slate-700/50 bg-slate-800/95 backdrop-blur-sm">
+      <header 
+        className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
+          isScrolled 
+            ? "border-b border-slate-700/80 bg-slate-800/98 shadow-xl shadow-slate-900/50 backdrop-blur-md" 
+            : "border-b border-slate-700/50 bg-slate-800/95 backdrop-blur-sm"
+        }`}
+      >
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="flex h-14 items-center justify-between">
             {/* Logo */}
@@ -125,7 +141,7 @@ export default function HomePage() {
               </a>
               <Link 
                 to="/login" 
-                className="ml-2 px-5 py-1.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors"
+                className="ml-2 px-5 py-1.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-all shadow-md hover:shadow-lg hover:shadow-indigo-500/30"
               >
                 Login
               </Link>
@@ -183,18 +199,10 @@ export default function HomePage() {
       <div className="pointer-events-none absolute left-0 top-0 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-white/20 via-white/10 to-transparent blur-3xl" />
       <div className="pointer-events-none absolute right-0 top-20 h-[500px] w-[500px] translate-x-1/3 rounded-full bg-gradient-to-bl from-white/20 via-white/10 to-transparent blur-3xl" />
       
-      <section className="relative mx-auto max-w-7xl px-6 py-6 pt-16 lg:py-8 lg:pt-20">{/* Reduced padding top significantly */}
+      <section className="relative mx-auto max-w-7xl px-6 py-6 pt-20 lg:py-8 lg:pt-24">{/* Adjusted padding for better spacing */}
         <div className="grid items-center gap-12 lg:grid-cols-2">
           {/* Left Content */}
           <div className="space-y-6 animate-[fadeIn_0.6s_ease-out]">
-            <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-white/20 px-4 py-2 text-sm font-semibold text-white shadow-sm backdrop-blur-sm">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75"></span>
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-indigo-500"></span>
-              </span>
-              Sistem Internal RBM
-            </div>
-
             <div className="space-y-4">
               <h1 className="text-5xl font-bold leading-tight tracking-tight text-white drop-shadow-lg lg:text-6xl">
                 Kelola Gudang Label{" "}
