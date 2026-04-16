@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { Package, Tag, TrendingUp, TrendingDown } from "lucide-react";
 import {
   Bar,
   BarChart,
@@ -36,10 +37,10 @@ export default function DashboardPage() {
   const isDark = theme === "dark";
 
   const cards = [
-    { label: "Stock Material", value: summary.material || 0 },
-    { label: "Stock Label", value: summary.label || 0 },
-    { label: "Label Masuk", value: summary.masuk || 0 },
-    { label: "Label Keluar", value: summary.keluar || 0 },
+    { label: "Stock Material", value: summary.material || 0, icon: Package },
+    { label: "Stock Label", value: summary.label || 0, icon: Tag },
+    { label: "Label Masuk", value: summary.masuk || 0, icon: TrendingUp },
+    { label: "Label Keluar", value: summary.keluar || 0, icon: TrendingDown },
   ];
   const maxCard = Math.max(1, ...cards.map((c) => Number(c.value || 0)));
   const chartData = cards.map((c) => ({ name: c.label, value: Number(c.value) }));
@@ -110,18 +111,36 @@ export default function DashboardPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-[fadeInUp_0.6s_ease-out]">
       <div className="grid gap-6 lg:grid-cols-4">
-        {cards.map((item) => (
-          <StatCard key={item.label} label={item.label} value={item.value} maxValue={maxCard} />
+        {cards.map((item, idx) => (
+          <div 
+            key={item.label}
+            className="animate-[fadeInUp_0.8s_ease-out] opacity-0"
+            style={{ 
+              animationDelay: `${idx * 0.1}s`,
+              animationFillMode: 'forwards'
+            }}
+          >
+            <StatCard label={item.label} value={item.value} maxValue={maxCard} icon={item.icon} />
+          </div>
         ))}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-md dark:border-slate-700 dark:bg-slate-800 lg:col-span-2">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Tren transaksi (14 hari)</h3>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Perbandingan jumlah Roll label masuk vs keluar.</p>
-          <div className="mt-4 h-80 min-w-0">
+        <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-xl transition-all duration-500 hover:shadow-2xl dark:border-slate-700 dark:bg-slate-800 lg:col-span-2 animate-[fadeInUp_0.8s_ease-out_0.4s] opacity-0" style={{ animationFillMode: 'forwards' }}>
+          <div className="flex items-start justify-between">
+            <div>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Tren Transaksi</h3>
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Perbandingan jumlah Roll label masuk vs keluar (14 hari terakhir)</p>
+            </div>
+            <div className="rounded-xl bg-gradient-to-br from-indigo-500/10 to-purple-500/10 p-2">
+              <svg className="h-6 w-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+              </svg>
+            </div>
+          </div>
+          <div className="mt-6 h-80 min-w-0">
             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={240}>
               <LineChart data={trendData} margin={{ top: 10, right: 18, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
@@ -129,16 +148,26 @@ export default function DashboardPage() {
                 <YAxis tick={axisTick} />
                 <Tooltip formatter={(value) => [`${value} Roll`, ""]} contentStyle={tooltipStyle} />
                 <Legend />
-                <Line type="monotone" dataKey="masuk" name="Masuk" stroke="#4f46e5" strokeWidth={2.5} dot={false} />
-                <Line type="monotone" dataKey="keluar" name="Keluar" stroke="#0ea5e9" strokeWidth={2.5} dot={false} />
+                <Line type="monotone" dataKey="masuk" name="Masuk" stroke="#10b981" strokeWidth={3} dot={{ fill: '#10b981', r: 4 }} activeDot={{ r: 6 }} />
+                <Line type="monotone" dataKey="keluar" name="Keluar" stroke="#f59e0b" strokeWidth={3} dot={{ fill: '#f59e0b', r: 4 }} activeDot={{ r: 6 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-md dark:border-slate-700 dark:bg-slate-800">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Ringkasan data</h3>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Komposisi stok &amp; transaksi.</p>
+        <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-xl transition-all duration-500 hover:shadow-2xl dark:border-slate-700 dark:bg-slate-800 animate-[fadeInUp_0.8s_ease-out_0.5s] opacity-0" style={{ animationFillMode: 'forwards' }}>
+          <div className="flex items-start justify-between">
+            <div>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Ringkasan Data</h3>
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Komposisi stok &amp; transaksi</p>
+            </div>
+            <div className="rounded-xl bg-gradient-to-br from-sky-500/10 to-indigo-500/10 p-2">
+              <svg className="h-6 w-6 text-sky-600 dark:text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+              </svg>
+            </div>
+          </div>
           <div className="mt-3 h-72 min-w-0">
             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={220}>
               <PieChart>
@@ -156,25 +185,43 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-md dark:border-slate-700 dark:bg-slate-800 lg:col-span-2">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Top item keluar</h3>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Item dengan jumlah Roll keluar terbesar.</p>
-          <div className="mt-4 h-80 min-w-0">
+        <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-xl transition-all duration-500 hover:shadow-2xl dark:border-slate-700 dark:bg-slate-800 lg:col-span-2 animate-[fadeInUp_0.8s_ease-out_0.6s] opacity-0" style={{ animationFillMode: 'forwards' }}>
+          <div className="flex items-start justify-between">
+            <div>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Top Item Keluar</h3>
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Item dengan jumlah Roll keluar terbesar</p>
+            </div>
+            <div className="rounded-xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 p-2">
+              <svg className="h-6 w-6 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+          </div>
+          <div className="mt-6 h-80 min-w-0">
             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={240}>
               <BarChart data={topItems} margin={{ top: 10, right: 18, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
                 <XAxis dataKey="name" tick={axisTick} interval={0} angle={-18} textAnchor="end" height={60} />
                 <YAxis tick={axisTick} />
                 <Tooltip formatter={(value) => [`${value} Roll`, ""]} contentStyle={tooltipStyle} />
-                <Bar dataKey="value" name="Roll" fill="#4f46e5" radius={[10, 10, 0, 0]} />
+                <Bar dataKey="value" name="Roll" fill="#f59e0b" radius={[10, 10, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-md dark:border-slate-700 dark:bg-slate-800">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Stock label per finishing</h3>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Distribusi stok total berdasarkan finishing.</p>
+        <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-xl transition-all duration-500 hover:shadow-2xl dark:border-slate-700 dark:bg-slate-800 animate-[fadeInUp_0.8s_ease-out_0.7s] opacity-0" style={{ animationFillMode: 'forwards' }}>
+          <div className="flex items-start justify-between">
+            <div>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Stock per Finishing</h3>
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Distribusi stok berdasarkan finishing</p>
+            </div>
+            <div className="rounded-xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 p-2">
+              <svg className="h-6 w-6 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+              </svg>
+            </div>
+          </div>
           <div className="mt-3 h-80 min-w-0">
             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={240}>
               <PieChart>
