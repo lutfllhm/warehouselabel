@@ -3,11 +3,21 @@ import { BarChart3, FileText, Lock, Package, TrendingUp, Users, CheckCircle2, Ar
 import BrandLogo from "../components/BrandLogo.jsx";
 import LabelPrinterAnimation from "../components/ui/LabelPrinterAnimation.jsx";
 import { usePageTitle } from "../hooks/usePageTitle.js";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function HomePage() {
   usePageTitle("Beranda");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleNavClick = () => {
     setIsMobileMenuOpen(false);
@@ -180,45 +190,55 @@ export default function HomePage() {
       </header>
 
       {/* Hero Section with Enhanced Decorations */}
-      <div className="pointer-events-none absolute left-0 top-0 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-white/20 via-white/10 to-transparent blur-3xl" />
-      <div className="pointer-events-none absolute right-0 top-20 h-[500px] w-[500px] translate-x-1/3 rounded-full bg-gradient-to-bl from-white/20 via-white/10 to-transparent blur-3xl" />
+      <div 
+        className="pointer-events-none absolute left-0 top-0 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-white/20 via-white/10 to-transparent blur-3xl transition-transform duration-1000"
+        style={{ transform: `translate(-50%, -50%) translateY(${scrollY * 0.3}px)` }}
+      />
+      <div 
+        className="pointer-events-none absolute right-0 top-20 h-[500px] w-[500px] translate-x-1/3 rounded-full bg-gradient-to-bl from-white/20 via-white/10 to-transparent blur-3xl transition-transform duration-1000"
+        style={{ transform: `translate(33%, 0) translateY(${scrollY * 0.2}px)` }}
+      />
       
       <section className="relative mx-auto max-w-7xl px-6 pt-20 pb-6 lg:pt-20 lg:pb-8">{/* Reduced top padding for tight spacing */}
         <div className="grid items-center gap-12 lg:grid-cols-2">
           {/* Left Content */}
-          <div className="space-y-6 animate-[fadeIn_0.6s_ease-out]">
+          <div className="space-y-6 animate-[fadeInUp_0.8s_ease-out]">
             <div className="space-y-4">
-              <h1 className="text-4xl font-bold leading-tight tracking-tight text-white drop-shadow-lg lg:text-5xl">
+              <h1 className="text-4xl font-bold leading-tight tracking-tight text-white drop-shadow-lg lg:text-5xl animate-[fadeInUp_0.6s_ease-out]">
                 Kelola Gudang Label{" "}
-                <span className="bg-gradient-to-r from-indigo-200 via-purple-200 to-pink-200 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-indigo-200 via-purple-200 to-pink-200 bg-clip-text text-transparent animate-[shimmer_3s_ease-in-out_infinite]">
                   Jadi Lebih Mudah
                 </span>
               </h1>
-              <p className="text-base leading-relaxed text-white/90 drop-shadow-md lg:text-lg">
+              <p className="text-base leading-relaxed text-white/90 drop-shadow-md lg:text-lg animate-[fadeInUp_0.8s_ease-out_0.2s_both]">
                 Catat stok label, tracking material masuk-keluar, simpan dokumen LPS & SJ, semua dalam satu tempat. Gak perlu ribet lagi.
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-4 animate-[fadeInUp_1s_ease-out_0.4s_both]">
               <Link
                 to="/login"
-                className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-indigo-500/30 transition-all hover:scale-105 hover:shadow-xl hover:shadow-indigo-500/40 dark:shadow-indigo-500/20"
+                className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-indigo-500/30 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-indigo-500/40 dark:shadow-indigo-500/20"
               >
                 Akses Sistem
-                <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
+                <ArrowRight size={18} className="transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
               <Link
                 to="/app/dashboard"
-                className="inline-flex items-center gap-2 rounded-xl border-2 border-white/40 bg-white/20 px-6 py-3.5 text-base font-semibold text-white shadow-sm backdrop-blur-sm transition-all hover:border-white/60 hover:bg-white/30"
+                className="inline-flex items-center gap-2 rounded-xl border-2 border-white/40 bg-white/20 px-6 py-3.5 text-base font-semibold text-white shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-white/60 hover:bg-white/30"
               >
                 Lihat Dashboard
               </Link>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 gap-4 pt-4 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 pt-4 sm:grid-cols-4 animate-[fadeInUp_1.2s_ease-out_0.6s_both]">
               {stats.map((stat, idx) => (
-                <div key={idx} className="text-center">
+                <div 
+                  key={idx} 
+                  className="text-center transform transition-all duration-300 hover:scale-110"
+                  style={{ animationDelay: `${0.8 + idx * 0.1}s` }}
+                >
                   <div className="text-2xl font-bold text-white drop-shadow-md">{stat.value}</div>
                   <div className="text-sm text-white/80">{stat.label}</div>
                 </div>
@@ -227,9 +247,11 @@ export default function HomePage() {
           </div>
 
           {/* Right Content - Label Printer Animation */}
-          <div className="relative animate-[fadeIn_0.8s_ease-out]">
-            <div className="absolute -inset-4 rounded-3xl bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-sky-500/20 blur-2xl"></div>
-            <LabelPrinterAnimation />
+          <div className="relative animate-[fadeInRight_1s_ease-out_0.4s_both]">
+            <div className="absolute -inset-4 rounded-3xl bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-sky-500/20 blur-2xl animate-pulse"></div>
+            <div className="relative transform transition-transform duration-500 hover:scale-105">
+              <LabelPrinterAnimation />
+            </div>
           </div>
         </div>
       </section>
@@ -237,7 +259,7 @@ export default function HomePage() {
       {/* Features Section */}
       <section id="features" className="relative border-t border-white/20 bg-white/10 py-16 backdrop-blur-md">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="mb-8 text-center">
+          <div className="mb-8 text-center animate-[fadeInUp_0.8s_ease-out]">
             <h2 className="text-3xl font-bold text-white drop-shadow-lg lg:text-4xl">Apa Aja yang Bisa Dilakukan?</h2>
             <p className="mx-auto mt-3 max-w-2xl text-lg text-white/90">
               Fitur-fitur yang bikin kerja di gudang jadi lebih gampang
@@ -259,16 +281,20 @@ export default function HomePage() {
               return (
                 <div
                   key={idx}
-                  className="group relative overflow-hidden rounded-2xl border border-white/30 bg-white/10 p-6 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                  className="group relative overflow-hidden rounded-2xl border border-white/30 bg-white/10 p-6 shadow-lg backdrop-blur-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl animate-[fadeInUp_0.8s_ease-out] opacity-0"
+                  style={{ 
+                    animationDelay: `${idx * 0.1}s`,
+                    animationFillMode: 'forwards'
+                  }}
                 >
-                  <div className="absolute right-0 top-0 h-32 w-32 -translate-y-1/2 translate-x-1/2 rounded-full bg-gradient-to-br from-white/20 to-transparent opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-100"></div>
+                  <div className="absolute right-0 top-0 h-32 w-32 -translate-y-1/2 translate-x-1/2 rounded-full bg-gradient-to-br from-white/20 to-transparent opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100"></div>
                   
                   <div className="relative">
-                    <div className={`inline-flex rounded-xl bg-gradient-to-br ${colorClasses[feature.color]} p-3 shadow-lg`}>
+                    <div className={`inline-flex rounded-xl bg-gradient-to-br ${colorClasses[feature.color]} p-3 shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
                       <Icon size={24} className="text-white" />
                     </div>
-                    <h3 className="mt-4 text-lg font-semibold text-white">{feature.title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-white/80">{feature.description}</p>
+                    <h3 className="mt-4 text-lg font-semibold text-white transition-colors duration-300 group-hover:text-indigo-200">{feature.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-white/80 transition-colors duration-300 group-hover:text-white/90">{feature.description}</p>
                   </div>
                 </div>
               );
