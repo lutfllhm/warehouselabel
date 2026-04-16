@@ -8,16 +8,6 @@ import { useState, useEffect } from "react";
 export default function HomePage() {
   usePageTitle("Beranda");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const handleNavClick = () => {
     setIsMobileMenuOpen(false);
@@ -108,40 +98,34 @@ export default function HomePage() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-transparent">
       {/* Header Navigation */}
-      <header 
-        className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
-          isScrolled 
-            ? "border-b border-slate-700/80 bg-slate-800/98 shadow-xl shadow-slate-900/50 backdrop-blur-md" 
-            : "border-b border-slate-700/50 bg-slate-800/95 backdrop-blur-sm"
-        }`}
-      >
+      <header className="fixed left-0 right-0 top-0 z-50 bg-slate-900/40 backdrop-blur-lg border-b border-white/10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="flex h-14 items-center justify-between">
+          <div className="flex h-16 items-center justify-between">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2.5 flex-shrink-0">
-              <BrandLogo className="h-7 w-7 flex-shrink-0" imgClassName="object-contain" />
-              <span className="hidden sm:inline text-base font-semibold text-white whitespace-nowrap">
+              <BrandLogo className="h-8 w-8 flex-shrink-0" imgClassName="object-contain" />
+              <span className="hidden sm:inline text-lg font-semibold text-white whitespace-nowrap">
                 RBM Warehouse Label
               </span>
-              <span className="sm:hidden text-base font-semibold text-white whitespace-nowrap">
+              <span className="sm:hidden text-lg font-semibold text-white whitespace-nowrap">
                 RBM
               </span>
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-2">
-              <a href="#features" className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white transition-colors">
+            <nav className="hidden md:flex items-center gap-8">
+              <a href="#features" className="text-sm font-medium text-white/80 hover:text-white transition-colors">
                 Fitur
               </a>
-              <a href="#about" className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white transition-colors">
+              <a href="#about" className="text-sm font-medium text-white/80 hover:text-white transition-colors">
                 Tentang
               </a>
-              <a href="#gallery" className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white transition-colors">
+              <a href="#gallery" className="text-sm font-medium text-white/80 hover:text-white transition-colors">
                 Galeri
               </a>
               <Link 
                 to="/login" 
-                className="ml-2 px-5 py-1.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-all shadow-md hover:shadow-lg hover:shadow-indigo-500/30"
+                className="px-6 py-2 text-sm font-medium text-white border border-white/30 hover:bg-white/10 rounded-md transition-all"
               >
                 Login
               </Link>
@@ -150,42 +134,42 @@ export default function HomePage() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 text-white hover:bg-slate-700/50 rounded-lg transition-colors"
+              className="md:hidden p-2 text-white hover:bg-white/10 rounded-md transition-colors"
               aria-label="Toggle menu"
             >
-              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
           </div>
 
           {/* Mobile Navigation */}
           {isMobileMenuOpen && (
-            <div className="md:hidden border-t border-slate-700/50 py-3">
-              <nav className="flex flex-col gap-1">
+            <div className="md:hidden border-t border-white/10 py-4 bg-slate-900/60 backdrop-blur-lg">
+              <nav className="flex flex-col gap-2">
                 <a 
                   href="#features" 
                   onClick={handleNavClick}
-                  className="text-sm font-medium text-slate-300 hover:text-white transition-colors py-2 px-3 hover:bg-slate-700/50 rounded-lg"
+                  className="text-sm font-medium text-white/80 hover:text-white transition-colors py-2.5 px-4 hover:bg-white/10 rounded-md"
                 >
                   Fitur
                 </a>
                 <a 
                   href="#about" 
                   onClick={handleNavClick}
-                  className="text-sm font-medium text-slate-300 hover:text-white transition-colors py-2 px-3 hover:bg-slate-700/50 rounded-lg"
+                  className="text-sm font-medium text-white/80 hover:text-white transition-colors py-2.5 px-4 hover:bg-white/10 rounded-md"
                 >
                   Tentang
                 </a>
                 <a 
                   href="#gallery" 
                   onClick={handleNavClick}
-                  className="text-sm font-medium text-slate-300 hover:text-white transition-colors py-2 px-3 hover:bg-slate-700/50 rounded-lg"
+                  className="text-sm font-medium text-white/80 hover:text-white transition-colors py-2.5 px-4 hover:bg-white/10 rounded-md"
                 >
                   Galeri
                 </a>
                 <Link 
                   to="/login" 
                   onClick={handleNavClick}
-                  className="mt-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors py-2 px-3 rounded-lg text-center"
+                  className="mt-2 text-sm font-medium text-white border border-white/30 hover:bg-white/10 transition-all py-2.5 px-4 rounded-md text-center"
                 >
                   Login
                 </Link>
