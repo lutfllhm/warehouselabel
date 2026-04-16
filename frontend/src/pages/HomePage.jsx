@@ -7,17 +7,7 @@ import { useState, useEffect } from "react";
 
 export default function HomePage() {
   usePageTitle("Beranda");
-  const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const handleNavClick = () => {
     setIsMobileMenuOpen(false);
@@ -108,69 +98,81 @@ export default function HomePage() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-transparent">
       {/* Header Navigation */}
-      <header
-        className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
-          isScrolled
-            ? "border-b border-white/20 bg-slate-900/95 shadow-lg backdrop-blur-md"
-            : "bg-transparent"
-        }`}
-      >
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="flex h-16 items-center justify-between gap-4">
+      <header className="fixed left-0 right-0 top-0 z-50 border-b border-slate-700/50 bg-slate-800/95 backdrop-blur-sm">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="flex h-14 items-center justify-between">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-3 flex-shrink-0 min-w-0">
-              <BrandLogo className="h-8 w-8 flex-shrink-0" imgClassName="object-contain" />
-              <span className="text-lg font-bold text-white whitespace-nowrap">RBM Warehouse Label</span>
+            <Link to="/" className="flex items-center gap-2.5 flex-shrink-0">
+              <BrandLogo className="h-7 w-7 flex-shrink-0" imgClassName="object-contain" />
+              <span className="hidden sm:inline text-base font-semibold text-white whitespace-nowrap">
+                RBM Warehouse Label
+              </span>
+              <span className="sm:hidden text-base font-semibold text-white whitespace-nowrap">
+                RBM
+              </span>
             </Link>
 
-            {/* Navigation - Desktop */}
-            <nav className="hidden md:flex items-center gap-6">
-              <a href="#features" className="text-sm font-medium text-white/90 transition-colors hover:text-white whitespace-nowrap">
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-2">
+              <a href="#features" className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white transition-colors">
                 Fitur
               </a>
-              <a href="#about" className="text-sm font-medium text-white/90 transition-colors hover:text-white whitespace-nowrap">
+              <a href="#about" className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white transition-colors">
                 Tentang
               </a>
-              <a href="#gallery" className="text-sm font-medium text-white/90 transition-colors hover:text-white whitespace-nowrap">
+              <a href="#gallery" className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white transition-colors">
                 Galeri
               </a>
+              <Link 
+                to="/login" 
+                className="ml-2 px-5 py-1.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors"
+              >
+                Login
+              </Link>
             </nav>
 
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 text-white hover:bg-white/10 rounded-lg transition-colors"
+              className="md:hidden p-2 text-white hover:bg-slate-700/50 rounded-lg transition-colors"
               aria-label="Toggle menu"
             >
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
 
           {/* Mobile Navigation */}
           {isMobileMenuOpen && (
-            <div className="md:hidden border-t border-white/20 py-4 animate-[fadeIn_0.2s_ease-out]">
-              <nav className="flex flex-col gap-3">
+            <div className="md:hidden border-t border-slate-700/50 py-3">
+              <nav className="flex flex-col gap-1">
                 <a 
                   href="#features" 
                   onClick={handleNavClick}
-                  className="text-sm font-medium text-white/90 hover:text-white transition-colors py-2 px-4 hover:bg-white/10 rounded-lg"
+                  className="text-sm font-medium text-slate-300 hover:text-white transition-colors py-2 px-3 hover:bg-slate-700/50 rounded-lg"
                 >
                   Fitur
                 </a>
                 <a 
                   href="#about" 
                   onClick={handleNavClick}
-                  className="text-sm font-medium text-white/90 hover:text-white transition-colors py-2 px-4 hover:bg-white/10 rounded-lg"
+                  className="text-sm font-medium text-slate-300 hover:text-white transition-colors py-2 px-3 hover:bg-slate-700/50 rounded-lg"
                 >
                   Tentang
                 </a>
                 <a 
                   href="#gallery" 
                   onClick={handleNavClick}
-                  className="text-sm font-medium text-white/90 hover:text-white transition-colors py-2 px-4 hover:bg-white/10 rounded-lg"
+                  className="text-sm font-medium text-slate-300 hover:text-white transition-colors py-2 px-3 hover:bg-slate-700/50 rounded-lg"
                 >
                   Galeri
                 </a>
+                <Link 
+                  to="/login" 
+                  onClick={handleNavClick}
+                  className="mt-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors py-2 px-3 rounded-lg text-center"
+                >
+                  Login
+                </Link>
               </nav>
             </div>
           )}
