@@ -98,12 +98,12 @@ export default function HomePage() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-transparent">
       {/* Header Navigation */}
-      <header className="fixed left-0 right-0 top-0 z-50 border-b border-slate-700/50 bg-slate-800/98 backdrop-blur-sm">
+      <header className="fixed left-0 right-0 top-0 z-50 border-b border-white/10 bg-slate-900/60 backdrop-blur-md">
         <div className="mx-auto max-w-7xl">
-          <div className="flex h-14 items-center justify-between px-4 lg:px-6">
+          <div className="flex h-16 items-center justify-between px-4 lg:px-6">
             {/* Logo - Left Side */}
             <Link to="/" className="flex items-center gap-2.5 flex-shrink-0 min-w-0">
-              <BrandLogo className="h-6 w-6 flex-shrink-0" imgClassName="object-contain" />
+              <BrandLogo className="h-7 w-7 flex-shrink-0" imgClassName="object-contain" />
               <span className="hidden sm:inline text-base font-semibold text-white tracking-tight">
                 RBM Warehouse Label
               </span>
@@ -113,28 +113,28 @@ export default function HomePage() {
             </Link>
 
             {/* Navigation - Right Side (Desktop) */}
-            <div className="hidden md:flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-1">
               <a 
                 href="#features" 
-                className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white transition-colors rounded-md hover:bg-slate-700/50"
+                className="px-4 py-2 text-sm font-medium text-slate-200 hover:text-white transition-colors"
               >
                 Fitur
               </a>
               <a 
                 href="#about" 
-                className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white transition-colors rounded-md hover:bg-slate-700/50"
+                className="px-4 py-2 text-sm font-medium text-slate-200 hover:text-white transition-colors"
               >
                 Tentang
               </a>
               <a 
                 href="#gallery" 
-                className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white transition-colors rounded-md hover:bg-slate-700/50"
+                className="px-4 py-2 text-sm font-medium text-slate-200 hover:text-white transition-colors"
               >
                 Galeri
               </a>
               <Link 
                 to="/login" 
-                className="ml-1 px-5 py-1.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-md transition-all shadow-sm hover:shadow-md"
+                className="ml-2 px-6 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-all shadow-lg shadow-indigo-500/30"
               >
                 Login
               </Link>
@@ -143,35 +143,35 @@ export default function HomePage() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden flex items-center justify-center w-9 h-9 text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-md transition-colors"
+              className="md:hidden flex items-center justify-center w-10 h-10 text-slate-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
               aria-label="Toggle menu"
             >
-              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
           </div>
 
           {/* Mobile Navigation Dropdown */}
           {isMobileMenuOpen && (
-            <div className="md:hidden border-t border-slate-700/50 bg-slate-800/98 backdrop-blur-sm">
-              <nav className="px-4 py-3 space-y-1">
+            <div className="md:hidden border-t border-white/10 bg-slate-900/95 backdrop-blur-md">
+              <nav className="px-4 py-4 space-y-1">
                 <a 
                   href="#features" 
                   onClick={handleNavClick}
-                  className="block px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-md transition-colors"
+                  className="block px-4 py-2.5 text-sm font-medium text-slate-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
                 >
                   Fitur
                 </a>
                 <a 
                   href="#about" 
                   onClick={handleNavClick}
-                  className="block px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-md transition-colors"
+                  className="block px-4 py-2.5 text-sm font-medium text-slate-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
                 >
                   Tentang
                 </a>
                 <a 
                   href="#gallery" 
                   onClick={handleNavClick}
-                  className="block px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-md transition-colors"
+                  className="block px-4 py-2.5 text-sm font-medium text-slate-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
                 >
                   Galeri
                 </a>
@@ -179,7 +179,7 @@ export default function HomePage() {
                   <Link 
                     to="/login" 
                     onClick={handleNavClick}
-                    className="block px-3 py-2 text-sm font-semibold text-center text-white bg-indigo-600 hover:bg-indigo-700 rounded-md transition-colors"
+                    className="block px-4 py-2.5 text-sm font-semibold text-center text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors shadow-lg shadow-indigo-500/30"
                   >
                     Login
                   </Link>
@@ -194,7 +194,7 @@ export default function HomePage() {
       <div className="pointer-events-none absolute left-0 top-0 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-white/20 via-white/10 to-transparent blur-3xl" />
       <div className="pointer-events-none absolute right-0 top-20 h-[500px] w-[500px] translate-x-1/3 rounded-full bg-gradient-to-bl from-white/20 via-white/10 to-transparent blur-3xl" />
       
-      <section className="relative mx-auto max-w-7xl px-6 py-12 pt-28 lg:py-16 lg:pt-32">{/* Added pt-28/pt-32 for header spacing */}
+      <section className="relative mx-auto max-w-7xl px-6 py-8 pt-20 lg:py-12 lg:pt-24">{/* Reduced padding top */}
         <div className="grid items-center gap-12 lg:grid-cols-2">
           {/* Left Content */}
           <div className="space-y-6 animate-[fadeIn_0.6s_ease-out]">
