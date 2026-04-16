@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { BarChart3, FileText, Lock, Package, TrendingUp, Users, CheckCircle2, ArrowRight } from "lucide-react";
+import { BarChart3, FileText, Lock, Package, TrendingUp, Users, CheckCircle2, ArrowRight, Menu, X } from "lucide-react";
 import BrandLogo from "../components/BrandLogo.jsx";
 import LabelPrinterAnimation from "../components/ui/LabelPrinterAnimation.jsx";
 import { usePageTitle } from "../hooks/usePageTitle.js";
@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 export default function HomePage() {
   usePageTitle("Beranda");
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -17,6 +18,10 @@ export default function HomePage() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleNavClick = () => {
+    setIsMobileMenuOpen(false);
+  };
 
   const slides = [1, 2, 3, 4, 5, 6, 7, 8].map((n) => ({ n, src: `/img/${n}.jpeg` }));
   const rowA = slides.slice(0, Math.ceil(slides.length / 2));
@@ -110,16 +115,16 @@ export default function HomePage() {
             : "bg-transparent"
         }`}
       >
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="flex h-16 items-center justify-between gap-4">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="flex h-16 items-center justify-between">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-3 flex-shrink-0 min-w-0">
-              <BrandLogo className="h-8 w-8 flex-shrink-0" imgClassName="object-contain" />
-              <span className="text-lg font-bold text-white whitespace-nowrap">RBM Warehouse Label</span>
+            <Link to="/" className="flex items-center gap-2 sm:gap-3 flex-shrink-0 z-10">
+              <BrandLogo className="h-7 w-7 sm:h-8 sm:w-8 flex-shrink-0" imgClassName="object-contain" />
+              <span className="text-base sm:text-lg font-bold text-white whitespace-nowrap">RBM Warehouse</span>
             </Link>
 
-            {/* Navigation */}
-            <nav className="flex items-center gap-6">
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-6">
               <a href="#features" className="text-sm font-medium text-white/90 transition-colors hover:text-white whitespace-nowrap">
                 Fitur
               </a>
@@ -130,7 +135,45 @@ export default function HomePage() {
                 Galeri
               </a>
             </nav>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 text-white hover:bg-white/10 rounded-lg transition-colors z-10"
+              aria-label="Toggle menu"
+            >
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
           </div>
+
+          {/* Mobile Navigation */}
+          {isMobileMenuOpen && (
+            <div className="md:hidden border-t border-white/20 py-4 animate-[fadeIn_0.2s_ease-out]">
+              <nav className="flex flex-col gap-3">
+                <a 
+                  href="#features" 
+                  onClick={handleNavClick}
+                  className="text-sm font-medium text-white/90 hover:text-white transition-colors py-2 px-4 hover:bg-white/10 rounded-lg"
+                >
+                  Fitur
+                </a>
+                <a 
+                  href="#about" 
+                  onClick={handleNavClick}
+                  className="text-sm font-medium text-white/90 hover:text-white transition-colors py-2 px-4 hover:bg-white/10 rounded-lg"
+                >
+                  Tentang
+                </a>
+                <a 
+                  href="#gallery" 
+                  onClick={handleNavClick}
+                  className="text-sm font-medium text-white/90 hover:text-white transition-colors py-2 px-4 hover:bg-white/10 rounded-lg"
+                >
+                  Galeri
+                </a>
+              </nav>
+            </div>
+          )}
         </div>
       </header>
 
