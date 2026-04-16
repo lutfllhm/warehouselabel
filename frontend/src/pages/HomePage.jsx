@@ -3,9 +3,21 @@ import { BarChart3, FileText, Lock, Package, TrendingUp, Users, CheckCircle2, Ar
 import BrandLogo from "../components/BrandLogo.jsx";
 import LabelPrinterAnimation from "../components/ui/LabelPrinterAnimation.jsx";
 import { usePageTitle } from "../hooks/usePageTitle.js";
+import { useState, useEffect } from "react";
 
 export default function HomePage() {
   usePageTitle("Beranda");
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const slides = [1, 2, 3, 4, 5, 6, 7, 8].map((n) => ({ n, src: `/img/${n}.jpeg` }));
   const rowA = slides.slice(0, Math.ceil(slides.length / 2));
   const rowB = slides.slice(Math.ceil(slides.length / 2));
@@ -90,11 +102,51 @@ export default function HomePage() {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-transparent">
+      {/* Header Navigation */}
+      <header
+        className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
+          isScrolled
+            ? "border-b border-white/20 bg-slate-900/95 shadow-lg backdrop-blur-md"
+            : "bg-transparent"
+        }`}
+      >
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="flex h-16 items-center justify-between">
+            {/* Logo */}
+            <div className="flex items-center gap-3">
+              <BrandLogo className="h-8 w-8" imgClassName="object-contain" />
+              <span className="text-lg font-bold text-white">RBM Warehouse Label</span>
+            </div>
+
+            {/* Navigation */}
+            <nav className="hidden items-center gap-6 md:flex">
+              <a href="#features" className="text-sm font-medium text-white/90 transition-colors hover:text-white">
+                Fitur
+              </a>
+              <a href="#about" className="text-sm font-medium text-white/90 transition-colors hover:text-white">
+                Tentang
+              </a>
+              <a href="#gallery" className="text-sm font-medium text-white/90 transition-colors hover:text-white">
+                Galeri
+              </a>
+            </nav>
+
+            {/* Login Button */}
+            <Link
+              to="/login"
+              className="rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+            >
+              Login
+            </Link>
+          </div>
+        </div>
+      </header>
+
       {/* Hero Section with Enhanced Decorations */}
       <div className="pointer-events-none absolute left-0 top-0 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-white/20 via-white/10 to-transparent blur-3xl" />
       <div className="pointer-events-none absolute right-0 top-20 h-[500px] w-[500px] translate-x-1/3 rounded-full bg-gradient-to-bl from-white/20 via-white/10 to-transparent blur-3xl" />
       
-      <section className="relative mx-auto max-w-7xl px-6 py-12 lg:py-16">
+      <section className="relative mx-auto max-w-7xl px-6 py-12 pt-28 lg:py-16 lg:pt-32">{/* Added pt-28/pt-32 for header spacing */}
         <div className="grid items-center gap-12 lg:grid-cols-2">
           {/* Left Content */}
           <div className="space-y-6 animate-[fadeIn_0.6s_ease-out]">
@@ -154,7 +206,7 @@ export default function HomePage() {
       </section>
 
       {/* Features Section */}
-      <section className="relative border-t border-white/20 bg-white/10 py-16 backdrop-blur-md">
+      <section id="features" className="relative border-t border-white/20 bg-white/10 py-16 backdrop-blur-md">
         <div className="mx-auto max-w-7xl px-6">
           <div className="mb-8 text-center">
             <h2 className="text-3xl font-bold text-white drop-shadow-lg lg:text-4xl">Apa Aja yang Bisa Dilakukan?</h2>
@@ -197,7 +249,7 @@ export default function HomePage() {
       </section>
 
       {/* Company Profile Section */}
-      <section className="relative border-t border-white/20 bg-transparent py-16 backdrop-blur-sm">
+      <section id="about" className="relative border-t border-white/20 bg-transparent py-16 backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-6">
           <div className="grid items-start gap-8 rounded-3xl border-2 border-white/30 bg-white/10 p-8 shadow-2xl backdrop-blur-md lg:grid-cols-3 lg:p-12">
             <div className="lg:col-span-1">
@@ -277,7 +329,7 @@ export default function HomePage() {
       </section>
 
       {/* Gallery Section */}
-      <section className="relative border-t border-white/20 bg-white/5 py-16 backdrop-blur-sm">
+      <section id="gallery" className="relative border-t border-white/20 bg-white/5 py-16 backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-6">
           <div className="mb-8 text-center">
             <h2 className="text-3xl font-bold text-white drop-shadow-lg lg:text-4xl">Foto-Foto Gudang</h2>
