@@ -98,7 +98,7 @@ export default function HomePage() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-transparent">
       {/* Header Navigation */}
-      <header className="fixed left-0 right-0 top-0 z-50 bg-slate-900/40 backdrop-blur-lg border-b border-white/10">
+      <header className="fixed left-0 right-0 top-0 z-50 bg-slate-900/40 backdrop-blur-lg">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
@@ -188,13 +188,13 @@ export default function HomePage() {
           {/* Left Content */}
           <div className="space-y-6 animate-[fadeIn_0.6s_ease-out]">
             <div className="space-y-4">
-              <h1 className="text-5xl font-bold leading-tight tracking-tight text-white drop-shadow-lg lg:text-6xl">
+              <h1 className="text-4xl font-bold leading-tight tracking-tight text-white drop-shadow-lg lg:text-5xl">
                 Kelola Gudang Label{" "}
                 <span className="bg-gradient-to-r from-indigo-200 via-purple-200 to-pink-200 bg-clip-text text-transparent">
                   Jadi Lebih Mudah
                 </span>
               </h1>
-              <p className="text-lg leading-relaxed text-white/90 drop-shadow-md">
+              <p className="text-base leading-relaxed text-white/90 drop-shadow-md lg:text-lg">
                 Catat stok label, tracking material masuk-keluar, simpan dokumen LPS & SJ, semua dalam satu tempat. Gak perlu ribet lagi.
               </p>
             </div>
